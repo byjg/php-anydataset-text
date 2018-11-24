@@ -2,6 +2,7 @@
 
 namespace ByJG\AnyDataset\Text;
 
+use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Text\Enum\FixedTextDefinition;
 use ByJG\AnyDataset\Core\Exception\DatasetException;
 use ByJG\AnyDataset\Core\Exception\NotFoundException;
@@ -61,7 +62,7 @@ class FixedTextFileDataset
     }
 
     /**
-     * @return FixedTextFileIterator
+     * @return GenericIterator
      * @throws DatasetException
      */
     protected function getIteratorHttp()
@@ -93,7 +94,7 @@ class FixedTextFileDataset
     }
 
     /**
-     * @return FixedTextFileIterator
+     * @return GenericIterator
      * @throws DatasetException
      */
     protected function getIteratorFile()
