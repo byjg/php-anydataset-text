@@ -1,17 +1,16 @@
-# Text AnyDataset
+# AnyDataset-Text
 
 [![Opensource ByJG](https://img.shields.io/badge/opensource-byjg.com-brightgreen.svg)](http://opensource.byjg.com)
 [![Build Status](https://travis-ci.org/byjg/anydataset-text.svg?branch=master)](https://travis-ci.org/byjg/anydataset-text)
 
-## Description
 
 Text file abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP. 
 
-See more about Anydataset [here](https://github.com/byjg/anydataset).
+See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
-## Examples
+# Examples
 
-### Text File Delimited
+## Text File Delimited
 
 ```php
 <?php
@@ -32,7 +31,7 @@ foreach ($iterator as $row) {
 }
 ```
 
-### Text File Fixed sized columns
+## Text File Fixed sized columns
 
 ```php
 <?php
@@ -61,17 +60,15 @@ foreach ($iterator as $row) {
 }
 ```
 
-### Read from remote url
+## Read from remote url
 
 `TextFileDataset` and `FixedTextFileDataset` support read file from remote http or https
 
-## Install
+# Install
 
 Just type: `composer require "byjg/anydataset-text=4.0.*"`
 
-#### Running Unit tests
-
-Running the Unit tests
+# Running Unit tests
 
 ```php
 vendor/bin/phpunit
