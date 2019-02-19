@@ -42,7 +42,7 @@ $file = "".
 $fieldDefinition = [
     new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('id', 0, 3),
     new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('name', 3, 7),
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('enable', 10, 1, null, 'S|N'),
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('enable', 10, 1, 'S|N'), // Required value --> S or N
     new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('code', 11, 4),
 ];
 

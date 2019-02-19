@@ -30,7 +30,7 @@ class FixedTextFileDataset
     public function __construct($source, $fieldDefinition)
     {
         if (!is_array($fieldDefinition)) {
-            throw new InvalidArgumentException("You must define an array of field definition.");
+            throw new InvalidArgumentException("You must define an array of FixedTextDefinition class.");
         }
 
         $this->source = $source;

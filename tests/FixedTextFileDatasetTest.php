@@ -37,7 +37,7 @@ class FixedTextFileDatasetTest extends TestCase
         $fieldDefinition = [
             new FixedTextDefinition('id', 0, 3),
             new FixedTextDefinition('name', 3, 7),
-            new FixedTextDefinition('enable', 10, 1, null, 'S|N'),
+            new FixedTextDefinition('enable', 10, 1, 'S|N'),
             new FixedTextDefinition('code', 11, 4),
         ];
 
@@ -53,18 +53,40 @@ class FixedTextFileDatasetTest extends TestCase
             1 => [
                 'id' => '002',
                 'name' => 'GILBERT',
-                'enable' => 'S',
+                'enable' => 'N',
                 'code' => '1621'
             ]
             ], $repository->getIterator()->toArray());
     }
 
+    /**
+     * @throws \ByJG\AnyDataset\Core\Exception\DatasetException
+     * @throws \ByJG\AnyDataset\Core\Exception\NotFoundException
+     * @expectedException \ByJG\AnyDataset\Core\Exception\IteratorException
+     */
+    public function testGetIteratorException()
+    {
+        $fieldDefinition = [
+            new FixedTextDefinition('id', 0, 3),
+            new FixedTextDefinition('name', 3, 7),
+            new FixedTextDefinition('enable', 10, 1,'Y|N'),
+            new FixedTextDefinition('code', 11, 4),
+        ];
+
+        $repository = new FixedTextFileDataset(__DIR__ . '/sample-fixed.txt', $fieldDefinition);
+        $repository->getIterator()->toArray();
+    }
+
+    /**
+     * @throws \ByJG\AnyDataset\Core\Exception\DatasetException
+     * @throws \ByJG\AnyDataset\Core\Exception\NotFoundException
+     */
     public function testGetIterator_SubTypes()
     {
         $fieldDefinition = [
             new FixedTextDefinition('id', 0, 3),
             new FixedTextDefinition('name', 3, 7),
-            new FixedTextDefinition('enable', 10, 1, null, 'S|N'),
+            new FixedTextDefinition('enable', 10, 1, 'S|N'),
             new FixedTextDefinition(
                 'code',
                 11,
@@ -92,7 +114,7 @@ class FixedTextFileDatasetTest extends TestCase
             1 => [
                 'id' => '002',
                 'name' => 'GILBERT',
-                'enable' => 'S',
+                'enable' => 'N',
                 'code' => [
                     'first' => '1',
                     'second' => '621'
