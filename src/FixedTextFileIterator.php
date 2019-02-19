@@ -126,9 +126,19 @@ class FixedTextFileIterator extends GenericIterator
             }
 
             if (is_array($fieldDef->subTypes)) {
-                $fields[$fieldDef->fieldName] = $this->processBuffer(
-                    $fields[$fieldDef->fieldName],
-                    $fieldDef->subTypes
+                if (!isset($fieldDef->subTypes[$fields[$fieldDef->fieldName]])) {
+                    throw new IteratorException("Subtype does not match");
+                }
+
+                $value = $fieldDef->subTypes[$fields[$fieldDef->fieldName]];
+
+                if (!is_array($value)) {
+                    throw new \InvalidArgumentException("Subtype needs to be an array");
+                }
+
+                $fields = array_merge(
+                    $fields,
+                    $this->processBuffer($buffer, $value)
                 );
             }
         }

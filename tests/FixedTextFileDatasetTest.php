@@ -63,6 +63,7 @@ class FixedTextFileDatasetTest extends TestCase
      * @throws \ByJG\AnyDataset\Core\Exception\DatasetException
      * @throws \ByJG\AnyDataset\Core\Exception\NotFoundException
      * @expectedException \ByJG\AnyDataset\Core\Exception\IteratorException
+     * @expectedExceptionMessage Expected the value
      */
     public function testGetIteratorException()
     {
@@ -86,15 +87,19 @@ class FixedTextFileDatasetTest extends TestCase
         $fieldDefinition = [
             new FixedTextDefinition('id', 0, 3),
             new FixedTextDefinition('name', 3, 7),
-            new FixedTextDefinition('enable', 10, 1, 'S|N'),
             new FixedTextDefinition(
-                'code',
-                11,
-                4,
+                'enable',
+                10,
+                1,
                 null,
                 [
-                    new FixedTextDefinition('first', 0, 1),
-                    new FixedTextDefinition('second', 1, 3),
+                    "S" => [
+                        new FixedTextDefinition('first', 11, 1),
+                        new FixedTextDefinition('second', 12, 3),
+                    ],
+                    "N" => [
+                        new FixedTextDefinition('reason', 11, 4),
+                    ]
                 ]
             ),
         ];
@@ -106,20 +111,77 @@ class FixedTextFileDatasetTest extends TestCase
                 'id' => '001',
                 'name' => 'JOAO   ',
                 'enable' => 'S',
-                'code' => [
-                    'first' => '1',
-                    'second' => '520'
-                ]
+                'first' => '1',
+                'second' => '520'
             ],
             1 => [
                 'id' => '002',
                 'name' => 'GILBERT',
                 'enable' => 'N',
-                'code' => [
-                    'first' => '1',
-                    'second' => '621'
-                ]
+                'reason' => '1621'
             ]
             ], $repository->getIterator()->toArray());
+    }
+
+    /**
+     * @throws \ByJG\AnyDataset\Core\Exception\DatasetException
+     * @throws \ByJG\AnyDataset\Core\Exception\NotFoundException
+     * @expectedException \ByJG\AnyDataset\Core\Exception\IteratorException
+     * @expectedExceptionMessage Subtype does not match
+     */
+    public function testGetIterator_SubTypes_Exception()
+    {
+        $fieldDefinition = [
+            new FixedTextDefinition('id', 0, 3),
+            new FixedTextDefinition('name', 3, 7),
+            new FixedTextDefinition(
+                'enable',
+                10,
+                1,
+                null,
+                [
+                    "Y" => [
+                        new FixedTextDefinition('first', 11, 1),
+                        new FixedTextDefinition('second', 12, 3),
+                    ],
+                    "N" => [
+                        new FixedTextDefinition('reason', 11, 4),
+                    ]
+                ]
+            ),
+        ];
+
+        $repository = new FixedTextFileDataset(__DIR__ . '/sample-fixed.txt', $fieldDefinition);
+        $repository->getIterator()->toArray();
+    }
+
+    /**
+     * @throws \ByJG\AnyDataset\Core\Exception\DatasetException
+     * @throws \ByJG\AnyDataset\Core\Exception\NotFoundException
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Subtype needs to be an array
+     */
+    public function testGetIterator_SubTypes_Exception_Param()
+    {
+        $fieldDefinition = [
+            new FixedTextDefinition('id', 0, 3),
+            new FixedTextDefinition('name', 3, 7),
+            new FixedTextDefinition(
+                'enable',
+                10,
+                1,
+                null,
+                [
+                    "S" => [
+                        new FixedTextDefinition('first', 11, 1),
+                        new FixedTextDefinition('second', 12, 3),
+                    ],
+                    "N" => new FixedTextDefinition('reason', 11, 4)
+                ]
+            ),
+        ];
+
+        $repository = new FixedTextFileDataset(__DIR__ . '/sample-fixed.txt', $fieldDefinition);
+        $repository->getIterator()->toArray();
     }
 }

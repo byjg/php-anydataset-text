@@ -60,6 +60,50 @@ foreach ($iterator as $row) {
 }
 ```
 
+## Text File Fixed sized columns with conditional type of fields
+
+```php
+<?php
+$file = "".
+    "001JOAO   S1520\n".
+    "002GILBERTS1621\n";
+
+$fieldDefinition = [
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('id', 0, 3),
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('name', 3, 7),
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition(
+        'enable',
+        10,
+        1,
+        null,
+        [
+            "S" => [
+                new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('first', 11, 1),
+                new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('second', 12, 3),
+            ],
+            "N" => [
+                new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('reason', 11, 4),
+            ]
+        ]
+    ),
+];
+
+$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset(
+    $file,
+    $fieldDefinition
+);
+
+$iterator = $dataset->getIterator();
+foreach ($iterator as $row) {
+    echo $row->get('id');
+    echo $row->get('name');
+    echo $row->get('enabled');
+    echo $row->get('first');       // Not empty if `enabled` == "S"
+    echo $row->get('second');      // Not empty if `enabled` == "S"
+    echo $row->get('reason');      // Not empty if `enabled` == "N"
+}
+```
+
 ## Read from remote url
 
 `TextFileDataset` and `FixedTextFileDataset` support read file from remote http or https
