@@ -17,7 +17,7 @@ class TextFileDatasetTest extends TestCase
     protected static $fileName_MacClassic = "";
     protected static $fileName_BlankLine = "";
 
-    const REMOTEURL = "https://firebasestorage.googleapis.com/v0/b/testing-bb65f.appspot.com/o/anydataset%%2F%s?alt=media";
+    const REMOTEURL = "https://testing-bb65f.firebaseapp.com/%s";
 
     public static function setUpBeforeClass()
     {
