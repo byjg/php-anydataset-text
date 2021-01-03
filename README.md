@@ -1,6 +1,9 @@
 # AnyDataset-Text
 
-[![Opensource ByJG](https://img.shields.io/badge/opensource-byjg.com-brightgreen.svg)](http://opensource.byjg.com)
+[![Opensource ByJG](https://img.shields.io/badge/opensource-byjg-success.svg)](http://opensource.byjg.com)
+[![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/anydataset-text/)
+[![GitHub license](https://img.shields.io/github/license/byjg/anydataset-text.svg)](https://opensource.byjg.com/opensource/licensing.html)
+[![GitHub release](https://img.shields.io/github/release/byjg/anydataset-text.svg)](https://github.com/byjg/anydataset-text/releases/)
 [![Build Status](https://travis-ci.org/byjg/anydataset-text.svg?branch=master)](https://travis-ci.org/byjg/anydataset-text)
 
 
@@ -8,9 +11,9 @@ Text file abstraction dataset. Anydataset is an agnostic data source abstraction
 
 See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
-# Examples
+## Examples
 
-## Text File Delimited
+### Text File Delimited
 
 ```php
 <?php
@@ -31,7 +34,7 @@ foreach ($iterator as $row) {
 }
 ```
 
-## Text File Fixed sized columns
+### Text File Fixed sized columns
 
 ```php
 <?php
@@ -60,7 +63,7 @@ foreach ($iterator as $row) {
 }
 ```
 
-## Text File Fixed sized columns with conditional type of fields
+### Text File Fixed sized columns with conditional type of fields
 
 ```php
 <?php
@@ -104,17 +107,17 @@ foreach ($iterator as $row) {
 }
 ```
 
-## Read from remote url
+### Read from remote url
 
 `TextFileDataset` and `FixedTextFileDataset` support read file from remote http or https
 
-# Install
+## Install
 
 Just type: `composer require "byjg/anydataset-text=4.0.*"`
 
-# Running Unit tests
+## Running Unit tests
 
-```php
+```bash
 vendor/bin/phpunit
 ```
 
