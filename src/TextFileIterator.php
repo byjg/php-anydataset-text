@@ -86,17 +86,12 @@ class TextFileIterator extends GenericIterator
     public function moveNext()
     {
         if ($this->hasNext()) {
-            $cols = preg_split($this->fieldexpression, $this->currentBuffer, -1, PREG_SPLIT_DELIM_CAPTURE);
+            $cols = preg_split($this->fieldexpression, preg_replace("/(\r?\n?)$/", "", $this->currentBuffer), -1, PREG_SPLIT_DELIM_CAPTURE);
 
             $row = new Row();
 
             for ($i = 0; ($i < count($this->fields)) && ($i < count($cols)); $i++) {
-                $column = $cols[$i];
-
-                if (($i >= count($this->fields) - 1) || ($i >= count($cols) - 1)) {
-                    $column = preg_replace("/(\r?\n?)$/", "", $column);
-                }
-
+                $column = preg_replace("/^[\"'](.*)[\"']$/", "$1", $cols[$i]);
                 $row->addField(strtolower($this->fields[$i]), $column);
             }
 

@@ -16,6 +16,7 @@ class TextFileDatasetTest extends TestCase
     protected static $fileName_Windows = "";
     protected static $fileName_MacClassic = "";
     protected static $fileName_BlankLine = "";
+    protected static $firstline_Header = "";
 
     const REMOTEURL = "https://opensource-test-resources.web.app/%s";
 
@@ -25,22 +26,25 @@ class TextFileDatasetTest extends TestCase
         self::$fileName_Windows = sys_get_temp_dir() . "/textfiletest-windows.csv";
         self::$fileName_MacClassic = sys_get_temp_dir() . "/textfiletest-mac.csv";
         self::$fileName_BlankLine = sys_get_temp_dir() . "/textfiletest-bl.csv";
+        self::$firstline_Header = sys_get_temp_dir() . "/firstline_header.csv";
 
         $text = "";
         for ($i = 1; $i <= 2000; $i++) {
             $text .= "$i;STRING$i;VALUE$i\n";
         }
         file_put_contents(self::$fileName_Unix, $text);
+        $text = "ID;\"NAME\";'VALUE'\n" . $text;
+        file_put_contents(self::$firstline_Header, $text);
 
         $text = "";
         for ($i = 1; $i <= 2000; $i++) {
-            $text .= "$i;STRING$i;VALUE$i\r\n";
+            $text .= "$i;\"STRING$i\";VALUE$i\r\n";
         }
         file_put_contents(self::$fileName_Windows, $text);
 
         $text = "";
         for ($i = 1; $i <= 2000; $i++) {
-            $text .= "$i;STRING$i;VALUE$i\r";
+            $text .= "$i;\'STRING$i\';VALUE$i\r";
         }
         file_put_contents(self::$fileName_MacClassic, $text);
 
@@ -66,6 +70,7 @@ class TextFileDatasetTest extends TestCase
         unlink(self::$fileName_Windows);
         unlink(self::$fileName_MacClassic);
         unlink(self::$fileName_BlankLine);
+        unlink(self::$firstline_Header);
     }
 
     // Run before each test case
@@ -82,7 +87,9 @@ class TextFileDatasetTest extends TestCase
 
     public function testcreateTextFileData_Unix()
     {
-        $txtFile = new TextFileDataset(self::$fileName_Unix, self::$fieldNames, TextFileDataset::CSVFILE);
+        $txtFile = TextFileDataset::getInstance(self::$fileName_Unix)
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $this->assertTrue($txtIterator instanceof IteratorInterface, "Resultant object must be an interator");
@@ -91,9 +98,50 @@ class TextFileDatasetTest extends TestCase
         $this->assertRowCount($txtIterator, 2000);
     }
 
+    public function testFirstline_Header_noDef()
+    {
+        $txtFile = TextFileDataset::getInstance(self::$firstline_Header)
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
+        $txtIterator = $txtFile->getIterator();
+
+        $this->assertTrue($txtIterator instanceof IteratorInterface, "Resultant object must be an interator");
+        $this->assertTrue($txtIterator->hasNext(), "hasNext() method must be true");
+        $this->assertTrue($txtIterator->Count() == -1, "Count() does not return anything by default.");
+        $this->assertRowCount($txtIterator, 2001);
+    }
+
+    public function testFirstline_Header()
+    {
+        $txtFile = TextFileDataset::getInstance(self::$firstline_Header)
+            ->withFieldParser(TextFileDataset::CSVFILE);
+        $txtIterator = $txtFile->getIterator();
+
+        $this->assertTrue($txtIterator instanceof IteratorInterface, "Resultant object must be an interator");
+        $this->assertTrue($txtIterator->hasNext(), "hasNext() method must be true");
+        $this->assertTrue($txtIterator->Count() == -1, "Count() does not return anything by default.");
+        $this->assertRowCount($txtIterator, 2000);
+    }
+
+    public function testFirstline_Header_CheckFields()
+    {
+        $txtFile = TextFileDataset::getInstance(self::$firstline_Header)
+            ->withFieldParser(TextFileDataset::CSVFILE);
+        $txtIterator = $txtFile->getIterator();
+
+        $line = $txtIterator->moveNext();
+        $this->assertEquals([
+            "id" => 1,
+            "name" => "STRING1",
+            "value" => "VALUE1"
+        ], $line->toArray());
+    }
+
     public function testcreateTextFileData_Windows()
     {
-        $txtFile = new TextFileDataset(self::$fileName_Windows, self::$fieldNames, TextFileDataset::CSVFILE);
+        $txtFile = TextFileDataset::getInstance(self::$fileName_Windows)
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $this->assertTrue($txtIterator instanceof IteratorInterface);
@@ -104,7 +152,9 @@ class TextFileDatasetTest extends TestCase
 
     public function testcreateTextFileData_MacClassic()
     {
-        $txtFile = new TextFileDataset(self::$fileName_MacClassic, self::$fieldNames, TextFileDataset::CSVFILE);
+        $txtFile = TextFileDataset::getInstance(self::$fileName_MacClassic)
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $this->assertTrue($txtIterator instanceof IteratorInterface);
@@ -115,7 +165,9 @@ class TextFileDatasetTest extends TestCase
 
     public function testcreateTextFileData_BlankLine()
     {
-        $txtFile = new TextFileDataset(self::$fileName_BlankLine, self::$fieldNames, TextFileDataset::CSVFILE);
+        $txtFile = TextFileDataset::getInstance(self::$fileName_BlankLine)
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $this->assertTrue($txtIterator instanceof IteratorInterface);
@@ -126,7 +178,9 @@ class TextFileDatasetTest extends TestCase
 
     public function testnavigateTextIterator_Unix()
     {
-        $txtFile = new TextFileDataset(self::$fileName_Windows, self::$fieldNames, TextFileDataset::CSVFILE);
+        $txtFile = TextFileDataset::getInstance(self::$fileName_Windows)
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $count = 0;
@@ -139,7 +193,9 @@ class TextFileDatasetTest extends TestCase
 
     public function testnavigateTextIterator_Windows()
     {
-        $txtFile = new TextFileDataset(self::$fileName_Windows, self::$fieldNames, TextFileDataset::CSVFILE);
+        $txtFile = TextFileDataset::getInstance(self::$fileName_Windows)
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $count = 0;
@@ -152,7 +208,9 @@ class TextFileDatasetTest extends TestCase
 
     public function testnavigateTextIterator_MacClassic()
     {
-        $txtFile = new TextFileDataset(self::$fileName_Windows, self::$fieldNames, TextFileDataset::CSVFILE);
+        $txtFile = TextFileDataset::getInstance(self::$fileName_Windows)
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $count = 0;
@@ -165,7 +223,9 @@ class TextFileDatasetTest extends TestCase
 
     public function testnavigateTextIterator_BlankLine()
     {
-        $txtFile = new TextFileDataset(self::$fileName_BlankLine, self::$fieldNames, TextFileDataset::CSVFILE);
+        $txtFile = TextFileDataset::getInstance(self::$fileName_BlankLine)
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $count = 0;
@@ -178,11 +238,9 @@ class TextFileDatasetTest extends TestCase
 
     public function testnavigateTextIterator_Remote_Unix()
     {
-        $txtFile = new TextFileDataset(
-            sprintf(self::REMOTEURL, basename(self::$fileName_Unix)),
-            self::$fieldNames,
-            TextFileDataset::CSVFILE
-        );
+        $txtFile = TextFileDataset::getInstance(sprintf(self::REMOTEURL, basename(self::$fileName_Unix)))
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $count = 0;
@@ -195,11 +253,9 @@ class TextFileDatasetTest extends TestCase
 
     public function testnavigateTextIterator_Remote_Windows()
     {
-        $txtFile = new TextFileDataset(
-            sprintf(self::REMOTEURL, basename(self::$fileName_Windows)),
-            self::$fieldNames,
-            TextFileDataset::CSVFILE
-        );
+        $txtFile = TextFileDataset::getInstance(sprintf(self::REMOTEURL, basename(self::$fileName_Windows)))
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $count = 0;
@@ -215,11 +271,9 @@ class TextFileDatasetTest extends TestCase
      */
     public function testnavigateTextIterator_Remote_MacClassic()
     {
-        $txtFile = new TextFileDataset(
-            sprintf(self::REMOTEURL, basename(self::$fileName_MacClassic)),
-            self::$fieldNames,
-            TextFileDataset::CSVFILE
-        );
+        $txtFile = TextFileDataset::getInstance(sprintf(self::REMOTEURL, basename(self::$fileName_MacClassic)))
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $count = 0;
@@ -232,11 +286,9 @@ class TextFileDatasetTest extends TestCase
 
     public function testnavigateTextIterator_Remote_BlankLine()
     {
-        $txtFile = new TextFileDataset(
-            sprintf(self::REMOTEURL, basename(self::$fileName_BlankLine)),
-            self::$fieldNames,
-            TextFileDataset::CSVFILE
-        );
+        $txtFile = TextFileDataset::getInstance(sprintf(self::REMOTEURL, basename(self::$fileName_BlankLine)))
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
         $count = 0;
@@ -252,7 +304,7 @@ class TextFileDatasetTest extends TestCase
      */
     public function testfileNotFound()
     {
-        new TextFileDataset("/tmp/xyz", self::$fieldNames, TextFileDataset::CSVFILE);
+        TextFileDataset::getInstance("/tmp/xyz");
     }
 
     /**
@@ -260,7 +312,7 @@ class TextFileDatasetTest extends TestCase
      */
     public function testremoteFileNotFound()
     {
-        $txtFile = new TextFileDataset(self::REMOTEURL . "notfound-test", self::$fieldNames, TextFileDataset::CSVFILE);
+        $txtFile = TextFileDataset::getInstance(self::REMOTEURL . "notfound-test");
         $txtFile->getIterator();
     }
 
@@ -269,12 +321,11 @@ class TextFileDatasetTest extends TestCase
      */
     public function testserverNotFound()
     {
-        $txtFile = new TextFileDataset("http://notfound-test/alalal", self::$fieldNames, TextFileDataset::CSVFILE);
+        $txtFile = TextFileDataset::getInstance("http://notfound-test/alalal");
         $txtFile->getIterator();
     }
 
     /**
-
      * @param Row $sr
      */
     public function assertSingleRow($sr, $count)

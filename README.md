@@ -21,16 +21,33 @@ $file = "Joao;Magalhaes
 John;Doe
 Jane;Smith";
     
-$dataset = new \ByJG\AnyDataset\Text\TextFileDataset(
-    $file,
-    ["name", "surname"],
-    \ByJG\AnyDataset\Text\TextFileDataset::CSVFILE
-);
+$dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
+    ->withFields(["name", "surname"])
+    ->withFieldParser(\ByJG\AnyDataset\Text\TextFileDataset::CSVFILE);
 $iterator = $dataset->getIterator();
 
 foreach ($iterator as $row) {
     echo $row->get('name');     // Print "Joao", "John", "Jane"
     echo $row->get('surname');  // Print "Magalhaes", "Doe", "Smith"
+}
+```
+
+### Text File Delimited - Get field names from first line
+
+```php
+<?php
+$file = "firstname;lastname
+John;Doe
+Jane;Smith";
+    
+// If omit `withFields` will get the field names from first line of the file
+$dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
+    ->withFieldParser(\ByJG\AnyDataset\Text\TextFileDataset::CSVFILE);
+$iterator = $dataset->getIterator();
+
+foreach ($iterator as $row) {
+    echo $row->get('firstname');     // Print "John", "Jane"
+    echo $row->get('lastname');  // Print "Doe", "Smith"
 }
 ```
 
