@@ -89,6 +89,7 @@ class TextFileIterator extends GenericIterator
             $cols = preg_split($this->fieldexpression, $this->currentBuffer, -1, PREG_SPLIT_DELIM_CAPTURE);
 
             $row = new Row();
+            $row->enableFieldNameCaseInSensitive();
 
             for ($i = 0; ($i < count($this->fields)) && ($i < count($cols)); $i++) {
                 $column = $cols[$i];
@@ -97,7 +98,7 @@ class TextFileIterator extends GenericIterator
                     $column = preg_replace("/(\r?\n?)$/", "", $column);
                 }
 
-                $row->addField(strtolower($this->fields[$i]), $column);
+                $row->addField($this->fields[$i], $column);
             }
 
             $this->readNextLine();

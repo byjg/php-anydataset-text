@@ -17,7 +17,7 @@ class TextFileDatasetTest extends TestCase
     protected static $fileName_MacClassic = "";
     protected static $fileName_BlankLine = "";
 
-    const REMOTEURL = "https://testing-bb65f.firebaseapp.com/%s";
+    const REMOTEURL = "https://opensource-test-resources.web.app/%s";
 
     public static function setUpBeforeClass()
     {
@@ -56,7 +56,7 @@ class TextFileDatasetTest extends TestCase
         // A lot of extras fields
         self::$fieldNames = array();
         for ($i = 1; $i < 30; $i++) {
-            self::$fieldNames[] = "field$i";
+            self::$fieldNames[] = "Field$i";
         }
     }
 
