@@ -13,7 +13,14 @@ See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
 ## Examples
 
-### Text File Delimited
+### Text File Delimited (CSV)
+
+This type of files uses a delimiter to define each field. The most common formart is CSV but you can use your own based on a regular expression.
+The class TextFileIterator has three constants with pre-defined formats:
+
+    - TextFileDataset::CSVFILE - A generic file definition. It accept both `,` and `;` as delimiter. 
+    - TextFileDataset::CSVFILE_COMMA - The CSV file. It accept only `,` as delimiter. 
+    - TextFileDataset::CSVFILE_SEMICOLON - A CSV variation. It accept only `;` as delimiter. 
 
 ```php
 <?php
@@ -36,6 +43,33 @@ foreach ($iterator as $row) {
 
 ### Text File Fixed sized columns
 
+This file has the field defined by it position on the line. It is necessary to define the name, type, position and field length for each field to to parse the file.
+This definition also allows set up required values and sub-types based on a value.
+
+The field definition is created by the enum `FixedTextDefinition` and it has the following fields:
+
+```php
+$definition = new FixedTextDefinition(
+    $fieldName,      # The field name
+    $startPos,       # The start position of this field in the row
+    $length,         # The number of characteres of the field content
+    $type,           # (optional) The type of the field content. FixedTextDefinition::TYPE_NUMBER or FixedTextDefinition::TYPE_STRING (default)
+    $requiredValue,  # (optional) an array of valid values. E.g. ['Y', 'N']
+    $subTypes = array(), # An associative array of FixedTextDefinition. If the value matches with the key of the associative array, then a sub set
+                         # of FixedTextDefinition is processed. e.g.
+                         # [
+                         #    "Y" => [
+                         #      new FixedTextDefinition(...),
+                         #      new FixedTextDefinition(...),
+                         #    ],
+                         #    "N" => new FixedTextDefinition(...)
+                         # ]
+);
+```
+
+Example:
+
+
 ```php
 <?php
 $file = "".
@@ -43,10 +77,10 @@ $file = "".
     "002GILBERTS1621\n";
 
 $fieldDefinition = [
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('id', 0, 3),
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('name', 3, 7),
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('enable', 10, 1, 'S|N'), // Required value --> S or N
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('code', 11, 4),
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('id', 0, 3, FixedTextDefinition::TYPE_NUMBER),
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('name', 3, 7m , FixedTextDefinition::TYPE_STRING),
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('enable', 10, 1, , FixedTextDefinition::TYPE_STRING, ['S', 'N']), // Required values --> S or N
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('code', 11, 4, , FixedTextDefinition::TYPE_NUMBER),
 ];
 
 $dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset(
@@ -78,6 +112,7 @@ $fieldDefinition = [
         'enable',
         10,
         1,
+        FixedTextDefinition::TYPE_STRING,
         null,
         [
             "S" => [
@@ -109,7 +144,7 @@ foreach ($iterator as $row) {
 
 ### Read from remote url
 
-`TextFileDataset` and `FixedTextFileDataset` support read file from remote http or https
+Both `TextFileDataset` and `FixedTextFileDataset` support read file from remote http or https
 
 ## Install
 

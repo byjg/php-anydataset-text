@@ -85,7 +85,7 @@ class FixedTextFileDataset
 
         try {
             fwrite($handle, $out);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             fclose($handle);
             throw new DatasetException($ex->getMessage());
         }
