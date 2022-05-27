@@ -41,7 +41,8 @@ class FixedTextFileDatasetTest extends TestCase
             new FixedTextDefinition('code', 11, 4),
         ];
 
-        $repository = new FixedTextFileDataset(__DIR__ . '/sample-fixed.txt', $fieldDefinition);
+        $repository = FixedTextFileDataset::getInstance(__DIR__ . '/sample-fixed.txt')
+            ->withFieldDefinition($fieldDefinition);
 
         $this->assertEquals([
             0 => [
@@ -74,7 +75,8 @@ class FixedTextFileDatasetTest extends TestCase
             new FixedTextDefinition('code', 11, 4),
         ];
 
-        $repository = new FixedTextFileDataset(__DIR__ . '/sample-fixed.txt', $fieldDefinition);
+        $repository = FixedTextFileDataset::getInstance(__DIR__ . '/sample-fixed.txt')
+            ->withFieldDefinition($fieldDefinition);
         $repository->getIterator()->toArray();
     }
 
@@ -104,7 +106,8 @@ class FixedTextFileDatasetTest extends TestCase
             ),
         ];
 
-        $repository = new FixedTextFileDataset(__DIR__ . '/sample-fixed.txt', $fieldDefinition);
+        $repository = FixedTextFileDataset::getInstance(__DIR__ . '/sample-fixed.txt')
+            ->withFieldDefinition($fieldDefinition);
 
         $this->assertEquals([
             0 => [
@@ -151,7 +154,8 @@ class FixedTextFileDatasetTest extends TestCase
             ),
         ];
 
-        $repository = new FixedTextFileDataset(__DIR__ . '/sample-fixed.txt', $fieldDefinition);
+        $repository = FixedTextFileDataset::getInstance(__DIR__ . '/sample-fixed.txt')
+            ->withFieldDefinition($fieldDefinition);
         $repository->getIterator()->toArray();
     }
 
@@ -181,7 +185,8 @@ class FixedTextFileDatasetTest extends TestCase
             ),
         ];
 
-        $repository = new FixedTextFileDataset(__DIR__ . '/sample-fixed.txt', $fieldDefinition);
+        $repository = FixedTextFileDataset::getInstance(__DIR__ . '/sample-fixed.txt')
+            ->withFieldDefinition($fieldDefinition);
         $repository->getIterator()->toArray();
     }
 }
