@@ -1,11 +1,10 @@
 # AnyDataset-Text
 
+[![Build Status](https://github.com/byjg/anydataset-text/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/anydataset-text/actions/workflows/phpunit.yml)
 [![Opensource ByJG](https://img.shields.io/badge/opensource-byjg-success.svg)](http://opensource.byjg.com)
 [![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/anydataset-text/)
 [![GitHub license](https://img.shields.io/github/license/byjg/anydataset-text.svg)](https://opensource.byjg.com/opensource/licensing.html)
 [![GitHub release](https://img.shields.io/github/release/byjg/anydataset-text.svg)](https://github.com/byjg/anydataset-text/releases/)
-[![Build Status](https://travis-ci.com/byjg/anydataset-text.svg?branch=master)](https://travis-ci.com/byjg/anydataset-text)
-
 
 Text file abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP. 
 
@@ -13,7 +12,7 @@ See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
 ## Examples
 
-### Text File Delimited
+### Text File Delimited (CSV)
 
 ```php
 <?php
@@ -32,7 +31,7 @@ foreach ($iterator as $row) {
 }
 ```
 
-### Text File Delimited - Get field names from first line
+### Text File Delimited (CSV) - Get field names from first line
 
 ```php
 <?php
@@ -66,10 +65,8 @@ $fieldDefinition = [
     new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('code', 11, 4),
 ];
 
-$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset(
-    $file,
-    $fieldDefinition
-);
+$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset($file)
+    ->withFieldDefinition($fieldDefinition);
 
 $iterator = $dataset->getIterator();
 foreach ($iterator as $row) {
@@ -108,10 +105,8 @@ $fieldDefinition = [
     ),
 ];
 
-$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset(
-    $file,
-    $fieldDefinition
-);
+$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset($file)
+    ->withFieldDefinition($fieldDefinition);
 
 $iterator = $dataset->getIterator();
 foreach ($iterator as $row) {
@@ -126,11 +121,11 @@ foreach ($iterator as $row) {
 
 ### Read from remote url
 
-`TextFileDataset` and `FixedTextFileDataset` support read file from remote http or https
+Both `TextFileDataset` and `FixedTextFileDataset` support read file from remote http or https
 
 ## Install
 
-Just type: `composer require "byjg/anydataset-text=4.0.*"`
+Just type: `composer require "byjg/anydataset-text=4.2.*"`
 
 ## Running Unit tests
 

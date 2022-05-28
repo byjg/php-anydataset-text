@@ -4,6 +4,7 @@ namespace Tests\AnyDataset\Dataset;
 
 use ByJG\AnyDataset\Text\FixedTextFileDataset;
 use ByJG\AnyDataset\Text\Enum\FixedTextDefinition;
+use ByJG\AnyDataset\Core\Exception\IteratorException;
 use PHPUnit\Framework\TestCase;
 
 class FixedTextFileDatasetTest extends TestCase
@@ -13,24 +14,6 @@ class FixedTextFileDatasetTest extends TestCase
      * @var FixedTextFileDataset
      */
     protected $object;
-
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
-    protected function setUp()
-    {
-
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown()
-    {
-
-    }
 
     public function testGetIterator()
     {
@@ -63,11 +46,12 @@ class FixedTextFileDatasetTest extends TestCase
     /**
      * @throws \ByJG\AnyDataset\Core\Exception\DatasetException
      * @throws \ByJG\AnyDataset\Core\Exception\NotFoundException
-     * @expectedException \ByJG\AnyDataset\Core\Exception\IteratorException
-     * @expectedExceptionMessage Expected the value
      */
     public function testGetIteratorException()
     {
+        $this->expectException(IteratorException::class);
+        $this->expectExceptionMessage("Expected the value");
+
         $fieldDefinition = [
             new FixedTextDefinition('id', 0, 3),
             new FixedTextDefinition('name', 3, 7),
@@ -129,11 +113,12 @@ class FixedTextFileDatasetTest extends TestCase
     /**
      * @throws \ByJG\AnyDataset\Core\Exception\DatasetException
      * @throws \ByJG\AnyDataset\Core\Exception\NotFoundException
-     * @expectedException \ByJG\AnyDataset\Core\Exception\IteratorException
-     * @expectedExceptionMessage Subtype does not match
      */
     public function testGetIterator_SubTypes_Exception()
     {
+        $this->expectException(IteratorException::class);
+        $this->expectExceptionMessage("Subtype does not match");
+
         $fieldDefinition = [
             new FixedTextDefinition('id', 0, 3),
             new FixedTextDefinition('name', 3, 7),
@@ -162,11 +147,12 @@ class FixedTextFileDatasetTest extends TestCase
     /**
      * @throws \ByJG\AnyDataset\Core\Exception\DatasetException
      * @throws \ByJG\AnyDataset\Core\Exception\NotFoundException
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Subtype needs to be an array
      */
     public function testGetIterator_SubTypes_Exception_Param()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Subtype needs to be an array");
+
         $fieldDefinition = [
             new FixedTextDefinition('id', 0, 3),
             new FixedTextDefinition('name', 3, 7),

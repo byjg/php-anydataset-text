@@ -20,7 +20,7 @@ class TextFileDatasetTest extends TestCase
 
     const REMOTEURL = "https://opensource-test-resources.web.app/%s";
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$fileName_Unix = sys_get_temp_dir() . "/textfiletest-unix.csv";
         self::$fileName_Windows = sys_get_temp_dir() . "/textfiletest-windows.csv";
@@ -64,25 +64,13 @@ class TextFileDatasetTest extends TestCase
         }
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         unlink(self::$fileName_Unix);
         unlink(self::$fileName_Windows);
         unlink(self::$fileName_MacClassic);
         unlink(self::$fileName_BlankLine);
         unlink(self::$firstline_Header);
-    }
-
-    // Run before each test case
-    public function setUp()
-    {
-        // Nothing Here
-    }
-
-    // Run end each test case
-    public function teardown()
-    {
-        // Nothing Here
     }
 
     public function testcreateTextFileData_Unix()
@@ -299,28 +287,25 @@ class TextFileDatasetTest extends TestCase
         $this->assertEquals($count, 2000);
     }
 
-    /**
-     * @expectedException \ByJG\AnyDataset\Core\Exception\NotFoundException
-     */
     public function testfileNotFound()
     {
+        $this->expectException(\ByJG\AnyDataset\Core\Exception\NotFoundException::class);
+
         TextFileDataset::getInstance("/tmp/xyz");
     }
 
-    /**
-     * @expectedException \ByJG\AnyDataset\Core\Exception\DatasetException
-     */
     public function testremoteFileNotFound()
     {
+        $this->expectException(\ByJG\AnyDataset\Core\Exception\DatasetException::class);
+
         $txtFile = TextFileDataset::getInstance(self::REMOTEURL . "notfound-test");
         $txtFile->getIterator();
     }
 
-    /**
-     * @expectedException \ByJG\AnyDataset\Core\Exception\DatasetException
-     */
     public function testserverNotFound()
     {
+        $this->expectException(\ByJG\AnyDataset\Core\Exception\DatasetException::class);
+
         $txtFile = TextFileDataset::getInstance("http://notfound-test/alalal");
         $txtFile->getIterator();
     }
