@@ -1,11 +1,10 @@
 # AnyDataset-Text
 
+[![Build Status](https://github.com/byjg/anydataset-text/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/anydataset-text/actions/workflows/phpunit.yml)
 [![Opensource ByJG](https://img.shields.io/badge/opensource-byjg-success.svg)](http://opensource.byjg.com)
 [![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/anydataset-text/)
 [![GitHub license](https://img.shields.io/github/license/byjg/anydataset-text.svg)](https://opensource.byjg.com/opensource/licensing.html)
 [![GitHub release](https://img.shields.io/github/release/byjg/anydataset-text.svg)](https://github.com/byjg/anydataset-text/releases/)
-[![Build Status](https://travis-ci.com/byjg/anydataset-text.svg?branch=master)](https://travis-ci.com/byjg/anydataset-text)
-
 
 Text file abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP. 
 
@@ -13,7 +12,14 @@ See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
 ## Examples
 
-### Text File Delimited
+### Text File Delimited (CSV)
+
+This type of files uses a delimiter to define each field. The most common formart is CSV but you can use your own based on a regular expression.
+The class TextFileIterator has three constants with pre-defined formats:
+
+    - TextFileDataset::CSVFILE - A generic file definition. It accept both `,` and `;` as delimiter. 
+    - TextFileDataset::CSVFILE_COMMA - The CSV file. It accept only `,` as delimiter. 
+    - TextFileDataset::CSVFILE_SEMICOLON - A CSV variation. It accept only `;` as delimiter. 
 
 ```php
 <?php
@@ -21,11 +27,9 @@ $file = "Joao;Magalhaes
 John;Doe
 Jane;Smith";
     
-$dataset = new \ByJG\AnyDataset\Text\TextFileDataset(
-    $file,
-    ["name", "surname"],
-    \ByJG\AnyDataset\Text\TextFileDataset::CSVFILE
-);
+$dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
+    ->withFields(["name", "surname"])
+    ->withFieldParser(\ByJG\AnyDataset\Text\TextFileDataset::CSVFILE);
 $iterator = $dataset->getIterator();
 
 foreach ($iterator as $row) {
@@ -34,7 +38,53 @@ foreach ($iterator as $row) {
 }
 ```
 
+### Text File Delimited (CSV) - Get field names from first line
+
+```php
+<?php
+$file = "firstname;lastname
+John;Doe
+Jane;Smith";
+    
+// If omit `withFields` will get the field names from first line of the file
+$dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
+    ->withFieldParser(\ByJG\AnyDataset\Text\TextFileDataset::CSVFILE);
+$iterator = $dataset->getIterator();
+
+foreach ($iterator as $row) {
+    echo $row->get('firstname');     // Print "John", "Jane"
+    echo $row->get('lastname');  // Print "Doe", "Smith"
+}
+```
+
 ### Text File Fixed sized columns
+
+This file has the field defined by it position on the line. It is necessary to define the name, type, position and field length for each field to to parse the file.
+This definition also allows set up required values and sub-types based on a value.
+
+The field definition is created by the enum `FixedTextDefinition` and it has the following fields:
+
+```php
+$definition = new FixedTextDefinition(
+    $fieldName,      # The field name
+    $startPos,       # The start position of this field in the row
+    $length,         # The number of characteres of the field content
+    $type,           # (optional) The type of the field content. FixedTextDefinition::TYPE_NUMBER or FixedTextDefinition::TYPE_STRING (default)
+    $requiredValue,  # (optional) an array of valid values. E.g. ['Y', 'N']
+    $subTypes = array(), # An associative array of FixedTextDefinition. If the value matches with the key of the associative array, then a sub set
+                         # of FixedTextDefinition is processed. e.g.
+                         # [
+                         #    "Y" => [
+                         #      new FixedTextDefinition(...),
+                         #      new FixedTextDefinition(...),
+                         #    ],
+                         #    "N" => new FixedTextDefinition(...)
+                         # ]
+);
+```
+
+Example:
+
 
 ```php
 <?php
@@ -43,16 +93,14 @@ $file = "".
     "002GILBERTS1621\n";
 
 $fieldDefinition = [
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('id', 0, 3),
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('name', 3, 7),
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('enable', 10, 1, 'S|N'), // Required value --> S or N
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('code', 11, 4),
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('id', 0, 3, FixedTextDefinition::TYPE_NUMBER),
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('name', 3, 7, FixedTextDefinition::TYPE_STRING),
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('enable', 10, 1, FixedTextDefinition::TYPE_STRING, ['S', 'N']), // Required values --> S or N
+    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('code', 11, 4, FixedTextDefinition::TYPE_NUMBER),
 ];
 
-$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset(
-    $file,
-    $fieldDefinition
-);
+$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset($file)
+    ->withFieldDefinition($fieldDefinition);
 
 $iterator = $dataset->getIterator();
 foreach ($iterator as $row) {
@@ -78,6 +126,7 @@ $fieldDefinition = [
         'enable',
         10,
         1,
+        FixedTextDefinition::TYPE_STRING,
         null,
         [
             "S" => [
@@ -91,10 +140,8 @@ $fieldDefinition = [
     ),
 ];
 
-$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset(
-    $file,
-    $fieldDefinition
-);
+$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset($file)
+    ->withFieldDefinition($fieldDefinition);
 
 $iterator = $dataset->getIterator();
 foreach ($iterator as $row) {
@@ -109,11 +156,11 @@ foreach ($iterator as $row) {
 
 ### Read from remote url
 
-`TextFileDataset` and `FixedTextFileDataset` support read file from remote http or https
+Both `TextFileDataset` and `FixedTextFileDataset` support read file from remote http or https
 
 ## Install
 
-Just type: `composer require "byjg/anydataset-text=4.0.*"`
+Just type: `composer require "byjg/anydataset-text=4.2.*"`
 
 ## Running Unit tests
 
