@@ -110,19 +110,19 @@ class FixedTextFileIterator extends GenericIterator
         for ($i = 0; $i < $cntDef; $i++) {
             $fieldDef = $fieldDefinition[$i];
 
-            $fields[$fieldDef->fieldName] = substr($buffer, $fieldDef->startPos, $fieldDef->length);
-            if (!empty($fieldDef->requiredValue)
-                && (
-                    !preg_match("/^[" . $fieldDef->requiredValue . "]$/", $fields[$fieldDef->fieldName])
-                )
-            ) {
+            $fields[$fieldDef->fieldName] = trim(substr($buffer, $fieldDef->startPos, $fieldDef->length));
+            if (!empty($fieldDef->requiredValue) && !in_array($fields[$fieldDef->fieldName], $fieldDef->requiredValue)) {
                 throw new IteratorException(
-                    "Expected the value '"
-                    . $fieldDef->requiredValue
+                    "Expected the values '"
+                    . implode(",", $fieldDef->requiredValue)
                     . "' and I got '"
                     . $fields[$fieldDef->fieldName]
                     . "'"
                 );
+            }
+
+            if (empty($fieldDef->subTypes) && $fieldDef->type == FixedTextDefinition::TYPE_NUMBER) {
+                $fields[$fieldDef->fieldName] = $fields[$fieldDef->fieldName] + 0; # Force convert to number
             }
 
             if (is_array($fieldDef->subTypes)) {

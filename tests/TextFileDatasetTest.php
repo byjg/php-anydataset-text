@@ -2,9 +2,11 @@
 
 namespace Tests\AnyDataset\Dataset;
 
+use ByJG\AnyDataset\Core\AnyDataset;
 use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Core\IteratorInterface;
 use ByJG\AnyDataset\Core\Row;
+use ByJG\AnyDataset\Text\Formatter\CSVFormatter;
 use ByJG\AnyDataset\Text\TextFileDataset;
 use PHPUnit\Framework\TestCase;
 
@@ -60,7 +62,7 @@ class TextFileDatasetTest extends TestCase
         // A lot of extras fields
         self::$fieldNames = array();
         for ($i = 1; $i < 30; $i++) {
-            self::$fieldNames[] = "field$i";
+            self::$fieldNames[] = "Field$i";
         }
     }
 
@@ -310,7 +312,83 @@ class TextFileDatasetTest extends TestCase
         $txtFile->getIterator();
     }
 
-    /**
+    public function testRowCSVFormatter()
+    {
+        $row = new Row([
+            "field1" => "value1",
+            "field2" => "0.345",
+            "field3" => 0.874,
+            "field4" => 10,
+            "field5" => 'With"Quote',
+            "field6" => "With'SingleQuote",
+            "field7" => "value7",
+            "field8" => "val,ue7",
+            "field9" => "value9",
+        ]);
+
+        $formatter = new CSVFormatter($row);
+
+        $this->assertEquals('value1,0.345,0.874,10,"With""Quote",With\'SingleQuote,value7,"val,ue7",value9' . "\n", $formatter->toText());
+
+        $formatter->setApplyQuote(CSVFormatter::APPLY_QUOTE_ALL_STRINGS);
+        $this->assertEquals('"value1",0.345,0.874,10,"With""Quote","With\'SingleQuote","value7","val,ue7","value9"' . "\n", $formatter->toText());
+
+        $formatter->setApplyQuote(CSVFormatter::APPLY_QUOTE_ALWAYS);
+        $this->assertEquals('"value1","0.345","0.874","10","With""Quote","With\'SingleQuote","value7","val,ue7","value9"' . "\n", $formatter->toText());
+    }
+
+    public function testAnyDatasetRowFormatter()
+    {
+        $anydataset = TextFileDataset::getInstance(self::$fileName_Unix)
+            ->withFields(self::$fieldNames);
+        $formatter = new CSVFormatter($anydataset->getIterator());
+
+        $text = "field1,field2,field3\n";
+        for ($i = 1; $i <= 2000; $i++) {
+            $text .= "$i,STRING$i,VALUE$i\n";
+        }
+        // print_r($formatter->toText());
+        $this->assertEquals($text, $formatter->toText());
+
+        $text = '"field1","field2","field3"' . "\n";
+        for ($i = 1; $i <= 2000; $i++) {
+            $text .= "$i,\"STRING$i\",\"VALUE$i\"\n";
+        }
+
+        $anydataset = TextFileDataset::getInstance(self::$fileName_Unix)
+            ->withFields(self::$fieldNames);
+        $formatter = new CSVFormatter($anydataset->getIterator());
+        $formatter->setApplyQuote(CSVFormatter::APPLY_QUOTE_ALL_STRINGS);
+        $this->assertEquals($text, $formatter->toText());
+
+        $text = '"field1","field2","field3"' . "\n";
+        for ($i = 1; $i <= 2000; $i++) {
+            $text .= "\"$i\",\"STRING$i\",\"VALUE$i\"\n";
+        }
+
+        $anydataset = TextFileDataset::getInstance(self::$fileName_Unix)
+            ->withFields(self::$fieldNames);
+        $formatter = new CSVFormatter($anydataset->getIterator());
+        $formatter->setApplyQuote(CSVFormatter::APPLY_QUOTE_ALWAYS);
+        $this->assertEquals($text, $formatter->toText());
+    }
+
+    public function testAnyDatasetRowFormatterNoHeader()
+    {
+        $anydataset = TextFileDataset::getInstance(self::$fileName_Unix)
+            ->withFields(self::$fieldNames);
+        $formatter = new CSVFormatter($anydataset->getIterator());
+        $formatter->setOutputHeader(false);
+
+        $text = "";
+        for ($i = 1; $i <= 2000; $i++) {
+            $text .= "$i,STRING$i,VALUE$i\n";
+        }
+        // print_r($formatter->toText());
+        $this->assertEquals($text, $formatter->toText());
+    }
+
+        /**
      * @param Row $sr
      */
     public function assertSingleRow($sr, $count)
