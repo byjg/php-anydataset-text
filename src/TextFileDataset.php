@@ -28,15 +28,11 @@ class TextFileDataset
      * @param string $fieldexpression
      * @throws NotFoundException
      */
-    public function __construct($source, $fields, $fieldexpression = null)
+    public function __construct($source)
     {
-        if (is_null($fieldexpression)) {
-            $fieldexpression = TextFileDataset::CSVFILE;
-        }
+        $this->fieldexpression = TextFileDataset::CSVFILE;
+        $this->fields = null;
 
-        if (!is_array($fields)) {
-            throw new InvalidArgumentException("You must define an array of fields.");
-        }
         if (!preg_match('~(http|https|ftp)://~', $source)) {
             $this->source = $source;
 
@@ -49,15 +45,29 @@ class TextFileDataset
             $this->source = $source;
             $this->sourceType = "HTTP";
         }
+    }
 
+    /**
+     * @throws NotFoundException
+     */
+    public static function getInstance($source)
+    {
+        return new TextFileDataset($source);
+    }
 
-        $this->fields = $fields;
+    public function withFieldParser($regexParser)
+    {
+        $this->fieldexpression = $regexParser;
+        return $this;
+    }
 
-        if ($fieldexpression == 'CSVFILE') {
-            $this->fieldexpression = TextFileDataset::CSVFILE;
-        } else {
-            $this->fieldexpression = $fieldexpression;
+    public function withFields($fields)
+    {
+        if (!is_array($fields)) {
+            throw new InvalidArgumentException("You must define an array of fields.");
         }
+        $this->fields = $fields;
+        return $this;
     }
 
     /**
@@ -76,11 +86,22 @@ class TextFileDataset
         }
 
         try {
-            $iterator = new TextFileIterator($handle, $this->fields, $this->fieldexpression);
-            return $iterator;
+            if (empty($this->fields)) {
+                $this->fields = $this->getFieldDefinitionFromFile($handle);
+            }
+            return new TextFileIterator($handle, $this->fields, $this->fieldexpression);
         } catch (Exception $ex) {
             fclose($handle);
             throw $ex;
         }
+    }
+
+    protected function getFieldDefinitionFromFile($handle)
+    {
+        $buffer = preg_replace("/(\r?\n?)$/", "", fgets($handle, 4096));
+        $fields = preg_split($this->fieldexpression, $buffer, -1, PREG_SPLIT_DELIM_CAPTURE);
+        return array_map(function ($value) {
+            return preg_replace("/^[\"'](.*)[\"']$/", "$1", $value);
+        }, $fields);
     }
 }

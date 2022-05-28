@@ -19,7 +19,7 @@
     "byjg/anydataset": "dev-master"
   },
   "require-dev": {
-    "phpunit/phpunit": "5.7.*|7.4.*|^9.4"
+    "phpunit/phpunit": "5.7.*|7.4.*|^9.5"
   },
   "license": "MIT"
 }

@@ -1,11 +1,10 @@
 # AnyDataset-Text
 
+[![Build Status](https://github.com/byjg/anydataset-text/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/anydataset-text/actions/workflows/phpunit.yml)
 [![Opensource ByJG](https://img.shields.io/badge/opensource-byjg-success.svg)](http://opensource.byjg.com)
 [![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/anydataset-text/)
 [![GitHub license](https://img.shields.io/github/license/byjg/anydataset-text.svg)](https://opensource.byjg.com/opensource/licensing.html)
 [![GitHub release](https://img.shields.io/github/release/byjg/anydataset-text.svg)](https://github.com/byjg/anydataset-text/releases/)
-[![Build Status](https://travis-ci.com/byjg/anydataset-text.svg?branch=master)](https://travis-ci.com/byjg/anydataset-text)
-
 
 Text file abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP. 
 
@@ -28,16 +27,33 @@ $file = "Joao;Magalhaes
 John;Doe
 Jane;Smith";
     
-$dataset = new \ByJG\AnyDataset\Text\TextFileDataset(
-    $file,
-    ["name", "surname"],
-    \ByJG\AnyDataset\Text\TextFileDataset::CSVFILE
-);
+$dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
+    ->withFields(["name", "surname"])
+    ->withFieldParser(\ByJG\AnyDataset\Text\TextFileDataset::CSVFILE);
 $iterator = $dataset->getIterator();
 
 foreach ($iterator as $row) {
     echo $row->get('name');     // Print "Joao", "John", "Jane"
     echo $row->get('surname');  // Print "Magalhaes", "Doe", "Smith"
+}
+```
+
+### Text File Delimited (CSV) - Get field names from first line
+
+```php
+<?php
+$file = "firstname;lastname
+John;Doe
+Jane;Smith";
+    
+// If omit `withFields` will get the field names from first line of the file
+$dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
+    ->withFieldParser(\ByJG\AnyDataset\Text\TextFileDataset::CSVFILE);
+$iterator = $dataset->getIterator();
+
+foreach ($iterator as $row) {
+    echo $row->get('firstname');     // Print "John", "Jane"
+    echo $row->get('lastname');  // Print "Doe", "Smith"
 }
 ```
 
@@ -83,10 +99,8 @@ $fieldDefinition = [
     new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('code', 11, 4, , FixedTextDefinition::TYPE_NUMBER),
 ];
 
-$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset(
-    $file,
-    $fieldDefinition
-);
+$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset($file)
+    ->withFieldDefinition($fieldDefinition);
 
 $iterator = $dataset->getIterator();
 foreach ($iterator as $row) {
@@ -126,10 +140,8 @@ $fieldDefinition = [
     ),
 ];
 
-$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset(
-    $file,
-    $fieldDefinition
-);
+$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset($file)
+    ->withFieldDefinition($fieldDefinition);
 
 $iterator = $dataset->getIterator();
 foreach ($iterator as $row) {
@@ -148,7 +160,7 @@ Both `TextFileDataset` and `FixedTextFileDataset` support read file from remote 
 
 ## Install
 
-Just type: `composer require "byjg/anydataset-text=4.0.*"`
+Just type: `composer require "byjg/anydataset-text=4.2.*"`
 
 ## Running Unit tests
 

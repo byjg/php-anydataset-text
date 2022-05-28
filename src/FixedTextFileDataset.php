@@ -24,15 +24,10 @@ class FixedTextFileDataset
      * Text File Data Set
      *
      * @param string $source
-     * @param FixedTextDefinition[] $fieldDefinition
      * @throws NotFoundException
      */
-    public function __construct($source, $fieldDefinition)
+    protected function __construct($source)
     {
-        if (!is_array($fieldDefinition)) {
-            throw new InvalidArgumentException("You must define an array of FixedTextDefinition class.");
-        }
-
         $this->source = $source;
         $this->sourceType = "HTTP";
 
@@ -43,8 +38,33 @@ class FixedTextFileDataset
 
             $this->sourceType = "FILE";
         }
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $source
+     * @return FixedTextFileDataset
+     */
+    public static function getInstance($source)
+    {
+        return new FixedTextFileDataset($source);
+    }
+
+    /**
+     * @param FixedTextDefinition[] $fieldDefinition
+     * @return FixedTextFileDataset
+     */
+    public function withFieldDefinition($fieldDefinition)
+    {
+
+        if (!is_array($fieldDefinition)) {
+            throw new InvalidArgumentException("You must define an array of FixedTextDefinition class.");
+        }
 
         $this->fieldDefinition = $fieldDefinition;
+
+        return $this;
     }
 
     /**
@@ -55,6 +75,10 @@ class FixedTextFileDataset
      */
     public function getIterator()
     {
+        if (empty($this->fieldDefinition)) {
+            throw new InvalidArgumentException("Field definition is empty");
+        }
+
         if ($this->sourceType == "HTTP") {
             return $this->getIteratorHttp();
         }

@@ -15,6 +15,7 @@ class CSVFormatter extends BaseFormatter
     protected $delimiter = ",";
     protected $quote = '"';
     protected $applyQuote = null;
+    protected $outputHeader = true;
 
     public function __construct($anydataset, $delimiter = ",", $quote = '"', $applyQuote = 1)
     {
@@ -28,9 +29,11 @@ class CSVFormatter extends BaseFormatter
     protected function anydatasetRaw($iterator)
     {
         $lines = "";
-        $row = $iterator->moveNext();
-        $lines .= $this->rowRaw(array_keys($row->toArray()));
-        $lines .= $this->rowRaw($row->toArray());
+        if ($this->outputHeader) {
+            $row = $iterator->moveNext();
+            $lines .= $this->rowRaw(array_keys($row->toArray()));
+            $lines .= $this->rowRaw($row->toArray());
+        }
 
         foreach ($iterator as $row) {
             $lines .= $this->rowRaw($row->toArray());
@@ -97,4 +100,17 @@ class CSVFormatter extends BaseFormatter
     {
         return $this->applyQuote;
     }
+	/**
+	 * @return mixed
+	 */
+	function getOutputHeader() {
+		return $this->outputHeader;
+	}
+	
+	/**
+	 * @param bool $outputHeader 
+	 */
+	function setOutputHeader($outputHeader) {
+		$this->outputHeader = $outputHeader;
+	}
 }
