@@ -6,7 +6,7 @@
 [![GitHub license](https://img.shields.io/github/license/byjg/anydataset-text.svg)](https://opensource.byjg.com/opensource/licensing.html)
 [![GitHub release](https://img.shields.io/github/release/byjg/anydataset-text.svg)](https://github.com/byjg/anydataset-text/releases/)
 
-Text file abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP. 
+Text file abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP.
 
 See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
@@ -85,7 +85,6 @@ $definition = new FixedTextDefinition(
 
 Example:
 
-
 ```php
 <?php
 $file = "".
@@ -157,6 +156,37 @@ foreach ($iterator as $row) {
 ### Read from remote url
 
 Both `TextFileDataset` and `FixedTextFileDataset` support read file from remote http or https
+
+## Formatters
+
+This package implements two formatters:
+
+- CSVFormatter - output the content as CSV File (field delimited)
+- FixedSizeColumnFormatter - output the content with columns defined by length.
+
+[Click here](http://opensource.byjg.com/php/anydataset.html#formatters) for more information about formatters.
+
+### CSVFormatter
+
+```php
+$formatter = new CSVFormatter($anydataset->getIterator());
+$formatter->setDelimiter(string);  # Default: ,
+$formatter->setQuote(string);  # Default: "
+$formatter->setApplyQuote(APPLY_QUOTE_ALWAYS | APPLY_QUOTE_WHEN_REQUIRED | APPLY_QUOTE_ALL_STRINGS | NEVER_APPLY_QUOTE); # Default: APPLY_QUOTE_WHEN_REQUIRED
+$formatter->setOutputHeader(true|false);  # Default: true
+$formatter->toText();
+```
+
+### FixedSizeColumnFormatter
+
+```php
+$fieldDefinition = [ ... ];  # See above about field defintion
+
+$formatter = new FixedSizeColumnFormatter($anydataset->getIterator(), $fieldDefinition);
+$formatter->setPadNumner(string);  # Default: 0
+$formatter->setPadString(string);  # Default: space character
+$formatter->toText();
+```
 
 ## Install
 
