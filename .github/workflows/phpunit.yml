@@ -28,8 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: composer install
-      - run: XDEBUG_MODE=coverage ./vendor/bin/phpunit
-      - run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
+      - run: ./vendor/bin/phpunit
       - run: ./vendor/bin/psalm
 
   Documentation:

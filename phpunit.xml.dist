@@ -20,15 +20,12 @@ and open the template in the editor.
         <ini name="error_reporting" value="E_ALL" />
     </php>
 
-    <coverage>
-        <report>
-            <clover outputFile="coverage.xml"/>
-        </report>
-        <include>
-            <directory suffix=".php">src</directory>
-        </include>
-    </coverage>
-
+    <filter>
+        <whitelist>
+            <directory>./src</directory>
+        </whitelist>
+    </filter>
+    
     <testsuites>
         <testsuite name="Test Suite">
             <directory>./tests</directory>

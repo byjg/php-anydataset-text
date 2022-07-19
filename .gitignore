@@ -9,5 +9,3 @@ vendor
 node_modules
 .usdocker
 .phpunit.result.cache
-
-coverage.xml
