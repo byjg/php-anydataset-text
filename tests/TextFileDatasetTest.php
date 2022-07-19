@@ -144,7 +144,8 @@ class TextFileDatasetTest extends TestCase
     {
         $txtFile = TextFileDataset::getInstance(self::$fileName_MacClassic)
             ->withFields(self::$fieldNames)
-            ->withFieldParser(TextFileDataset::CSVFILE);
+            ->withFieldParser(TextFileDataset::CSVFILE)
+            ->withEofChar("\r");
         $txtIterator = $txtFile->getIterator();
 
         $this->assertTrue($txtIterator instanceof IteratorInterface);
@@ -263,7 +264,8 @@ class TextFileDatasetTest extends TestCase
     {
         $txtFile = TextFileDataset::getInstance(sprintf(self::REMOTEURL, basename(self::$fileName_MacClassic)))
             ->withFields(self::$fieldNames)
-            ->withFieldParser(TextFileDataset::CSVFILE);
+            ->withFieldParser(TextFileDataset::CSVFILE)
+            ->withEofChar("\r");
         $txtIterator = $txtFile->getIterator();
 
         $count = 0;

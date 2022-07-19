@@ -29,18 +29,17 @@ class FixedTextFileIterator extends GenericIterator
     /**
      *
      * @param resource $handle
-     * @param FixedTextDefinition[] $fields
+     * @param FixedTextDefinition[] $fieldDefinition
      */
-    public function __construct($handle, $fields)
+    public function __construct($handle, $fieldDefinition)
     {
-        $this->fields = $fields;
+        $this->fields = $fieldDefinition;
         $this->handle = $handle;
         $this->current = 0;
     }
 
     /**
-     * @access public
-     * @return int
+     * @inheritDoc
      */
     public function count()
     {
@@ -48,16 +47,21 @@ class FixedTextFileIterator extends GenericIterator
     }
 
     /**
-     * @access public
-     * @return bool
+     * @inheritDoc
      */
     public function hasNext()
     {
+        /**
+         * @psalm-suppress DocblockTypeContradiction
+         */
         if (!$this->handle) {
             return false;
         }
 
         if (feof($this->handle)) {
+            /**
+             * @psalm-suppress InvalidPropertyAssignmentValue
+             */
             fclose($this->handle);
 
             return false;
@@ -68,82 +72,92 @@ class FixedTextFileIterator extends GenericIterator
 
 
     /**
-     * @return Row|null
-     * @throws IteratorException
-     * @throws \ByJG\Serializer\Exception\InvalidArgumentException
+     * @inheritDoc
      */
     public function moveNext()
     {
         if ($this->hasNext()) {
-            $buffer = fgets($this->handle, 4096);
+            $buffer = fgets($this->handle, 8192);
 
             if ($buffer == "") {
                 return new Row();
             }
 
-            $fields = $this->processBuffer($buffer, $this->fields);
-
-            if (is_null($fields)) {
-                throw new IteratorException("Definition does not match");
-            }
+            $retFields = $this->processBuffer($buffer, $this->fields);
 
             $this->current++;
-            return new Row($fields);
+            return new Row($retFields);
         }
 
+        /**
+         * @psalm-suppress RedundantConditionGivenDocblockType
+         */
         if ($this->handle) {
+            /**
+             * @psalm-suppress InvalidPropertyAssignmentValue
+             */
             fclose($this->handle);
         }
         return null;
     }
 
     /**
-     * @param $buffer
-     * @param $fieldDefinition
+     * @param string $buffer
+     * @param FixedTextDefinition[] $fieldDefinition
      * @return array
      * @throws IteratorException
      */
     protected function processBuffer($buffer, $fieldDefinition)
     {
         $cntDef = count($fieldDefinition);
-        $fields = [];
+        $fieldList = [];
         for ($i = 0; $i < $cntDef; $i++) {
             $fieldDef = $fieldDefinition[$i];
 
-            $fields[$fieldDef->fieldName] = trim(substr($buffer, $fieldDef->startPos, $fieldDef->length));
-            if (!empty($fieldDef->requiredValue) && !in_array($fields[$fieldDef->fieldName], $fieldDef->requiredValue)) {
+            $fieldList[$fieldDef->fieldName] = trim(substr($buffer, $fieldDef->startPos, $fieldDef->length));
+            if (!empty($fieldDef->requiredValue) && !in_array($fieldList[$fieldDef->fieldName], $fieldDef->requiredValue)) {
                 throw new IteratorException(
                     "Expected the values '"
                     . implode(",", $fieldDef->requiredValue)
                     . "' and I got '"
-                    . $fields[$fieldDef->fieldName]
+                    . $fieldList[$fieldDef->fieldName]
                     . "'"
                 );
             }
 
             if (empty($fieldDef->subTypes) && $fieldDef->type == FixedTextDefinition::TYPE_NUMBER) {
-                $fields[$fieldDef->fieldName] = $fields[$fieldDef->fieldName] + 0; # Force convert to number
+                /**
+                 * This will convert the string to number. 
+                 * @psalm-suppress InvalidOperand
+                 */
+                $fieldList[$fieldDef->fieldName] = $fieldList[$fieldDef->fieldName] + 0;
             }
 
             if (is_array($fieldDef->subTypes)) {
-                if (!isset($fieldDef->subTypes[$fields[$fieldDef->fieldName]])) {
+                if (!isset($fieldDef->subTypes[$fieldList[$fieldDef->fieldName]])) {
                     throw new IteratorException("Subtype does not match");
                 }
 
-                $value = $fieldDef->subTypes[$fields[$fieldDef->fieldName]];
+                /**
+                 * @psalm-suppress PossiblyInvalidArrayOffset
+                 */
+                $value = $fieldDef->subTypes[$fieldList[$fieldDef->fieldName]];
 
                 if (!is_array($value)) {
                     throw new \InvalidArgumentException("Subtype needs to be an array");
                 }
 
-                $fields = array_merge(
-                    $fields,
+                $fieldList = array_merge(
+                    $fieldList,
+                    /**
+                     * @psalm-suppress PossiblyNullArgument
+                     */
                     $this->processBuffer($buffer, $value)
                 );
             }
         }
 
-        return $fields;
+        return $fieldList;
     }
 
     public function key()
