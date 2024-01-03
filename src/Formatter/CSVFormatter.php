@@ -35,7 +35,7 @@ class CSVFormatter extends BaseFormatter
     {
         parent::__construct($anydataset);
 
-        $this->$delimiter = $delimiter;
+        $this->delimiter = $delimiter;
         $this->quote = $quote;
         $this->applyQuote = $applyQuote;
     }

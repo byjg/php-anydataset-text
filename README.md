@@ -198,5 +198,12 @@ Just type: `composer require "byjg/anydataset-text=4.2.*"`
 vendor/bin/phpunit
 ```
 
+## Dependencies
+
+```mermaid
+flowchart TD
+    byjg/anydataset-text --> byjg/anydataset
+```
+
 ----
 [Open source ByJG](http://opensource.byjg.com)
