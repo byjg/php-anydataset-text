@@ -4,23 +4,35 @@ namespace ByJG\AnyDataset\Text\Formatter;
 
 use ByJG\AnyDataset\Core\AnyDataset;
 use ByJG\AnyDataset\Core\Formatter\BaseFormatter;
+use ByJG\AnyDataset\Core\GenericIterator;
+use ByJG\AnyDataset\Core\Row;
 use ByJG\AnyDataset\Text\Enum\FixedTextDefinition;
 use ByJG\AnyDataset\Text\Exception\MalformedException;
+use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 
 class FixedSizeColumnFormatter extends BaseFormatter
 {
     /**
      * @var FixedTextDefinition[]
      */
-    protected $fieldDefinition = null;
+    protected $fieldDefinition;
     
     /**
      * @var string
      */
     protected $padNumber = '0';
 
+    /**
+     * @var string
+     */
     protected $padString = " ";
 
+    /**
+     * 
+     *
+     * @param GenericIterator|Row $anydataset
+     * @param FixedTextDefinition[] $fieldDefinition
+     */
     public function __construct($anydataset, $fieldDefinition)
     {
         parent::__construct($anydataset);
@@ -28,6 +40,10 @@ class FixedSizeColumnFormatter extends BaseFormatter
         $this->fieldDefinition = $fieldDefinition;
     }
 
+    /**
+     * @param GenericIterator $iterator
+     * @return string
+     */
     protected function anydatasetRaw($iterator)
     {
         $lines = "";
@@ -38,6 +54,12 @@ class FixedSizeColumnFormatter extends BaseFormatter
         return $lines;
     }
 
+    /**
+     * @param array $row
+     * @param null|FixedTextDefinition[]|FixedTextDefinition $fieldDefinition
+     * @param string $eof
+     * @return string
+     */
     protected function rowRaw($row, $fieldDefinition = null, $eof = "\n")
     {
         if (empty($fieldDefinition)) {
@@ -47,6 +69,9 @@ class FixedSizeColumnFormatter extends BaseFormatter
             $fieldDefinition = [$fieldDefinition];
         }
 
+        /**
+         * @psalm-suppress MissingClosureReturnType
+         */
         usort($fieldDefinition, function($a, $b) { return $a->startPos - $b->startPos; });
        
         $line = "";
@@ -71,6 +96,9 @@ class FixedSizeColumnFormatter extends BaseFormatter
 
             if (!empty($definition->subTypes)) {
                 $subTypes = $definition->subTypes;
+                /**
+                 * @psalm-suppress RedundantConditionGivenDocblockType
+                 */
                 if (is_array($definition->subTypes)) {
                     if (!isset($definition->subTypes[$value])) {
                         throw new MalformedException("Sub type '$value' doesn't exist");
@@ -83,10 +111,13 @@ class FixedSizeColumnFormatter extends BaseFormatter
         return $line . $eof;
     }
 
+    /**
+     * @return string
+     */
     public function raw()
     {
-        if ($this->object instanceof AnyDataset) {
-            return $this->anydatasetRaw($this->object->getIterator());
+        if ($this->object instanceof GenericIterator) {
+            return $this->anydatasetRaw($this->object);
         }
         return $this->rowRaw($this->object->toArray());
     }
@@ -109,6 +140,7 @@ class FixedSizeColumnFormatter extends BaseFormatter
 	/**
 	 * 
 	 * @param string $padNumber 
+     * @return void
 	 */
 	function setPadNumber($padNumber) {
 		$this->padNumber = $padNumber;
@@ -122,6 +154,7 @@ class FixedSizeColumnFormatter extends BaseFormatter
 	
 	/**
 	 * @param string $padString 
+     * @return void
 	 */
 	function setPadString($padString) {
 		$this->padString = $padString;

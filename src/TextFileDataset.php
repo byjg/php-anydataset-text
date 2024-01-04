@@ -15,10 +15,20 @@ class TextFileDataset
     const CSVFILE_SEMICOLON = '/[;](?=(?:[^"]*"[^"]*")*(?![^"]*"))/';
     const CSVFILE_COMMA = '/[,](?=(?:[^"]*"[^"]*")*(?![^"]*"))/';
 
+    /** @var string */
     protected $source;
+
+    /** @var array */
     protected $fields;
+
+    /** @var string */
     protected $fieldexpression;
+
+    /** @var string */
     protected $sourceType;
+
+    /** @var string */
+    protected $eofChar = "";
 
     /**
      * Text File Data Set
@@ -31,7 +41,7 @@ class TextFileDataset
     public function __construct($source)
     {
         $this->fieldexpression = TextFileDataset::CSVFILE;
-        $this->fields = null;
+        $this->fields = [];
 
         if (!preg_match('~(http|https|ftp)://~', $source)) {
             $this->source = $source;
@@ -48,6 +58,8 @@ class TextFileDataset
     }
 
     /**
+     * @param string $source
+     * @return TextFileDataset
      * @throws NotFoundException
      */
     public static function getInstance($source)
@@ -55,14 +67,25 @@ class TextFileDataset
         return new TextFileDataset($source);
     }
 
+    /**
+     * @param string $regexParser
+     * @return TextFileDataset
+     */
     public function withFieldParser($regexParser)
     {
         $this->fieldexpression = $regexParser;
         return $this;
     }
 
+    /**
+     * @param array $fields
+     * @return TextFileDataset
+     */
     public function withFields($fields)
     {
+        /**
+         * @psalm-suppress DocblockTypeContradiction
+         */
         if (!is_array($fields)) {
             throw new InvalidArgumentException("You must define an array of fields.");
         }
@@ -71,16 +94,23 @@ class TextFileDataset
     }
 
     /**
-     * @access public
+     * @param string $char
+     * @return TextFileDataset
+     */
+    public function withEofChar($char)
+    {
+        $this->eofChar = $char;
+        return $this;
+    }
+
+    /**
      * @return GenericIterator
      * @throws DatasetException
      * @throws Exception
      */
     public function getIterator()
     {
-        $old = ini_set('auto_detect_line_endings', true);
         $handle = @fopen($this->source, "r");
-        ini_set('auto_detect_line_endings', $old);
         if (!$handle) {
             throw new DatasetException("TextFileDataset failed to open resource");
         }
@@ -89,19 +119,26 @@ class TextFileDataset
             if (empty($this->fields)) {
                 $this->fields = $this->getFieldDefinitionFromFile($handle);
             }
-            return new TextFileIterator($handle, $this->fields, $this->fieldexpression);
+            return new TextFileIterator($handle, $this->fields, $this->fieldexpression, $this->eofChar);
         } catch (Exception $ex) {
             fclose($handle);
             throw $ex;
         }
     }
 
+    /**
+     * @param resource $handle
+     * @return array
+     */
     protected function getFieldDefinitionFromFile($handle)
     {
         $buffer = preg_replace("/(\r?\n?)$/", "", fgets($handle, 4096));
-        $fields = preg_split($this->fieldexpression, $buffer, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $fieldList = preg_split($this->fieldexpression, $buffer, -1, PREG_SPLIT_DELIM_CAPTURE);
+        /**
+         * @psalm-suppress MissingClosureParamType
+         */
         return array_map(function ($value) {
             return preg_replace("/^[\"'](.*)[\"']$/", "$1", $value);
-        }, $fields);
+        }, $fieldList);
     }
 }

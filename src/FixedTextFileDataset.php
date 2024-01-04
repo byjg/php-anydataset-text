@@ -12,12 +12,20 @@ use InvalidArgumentException;
 class FixedTextFileDataset
 {
 
+    /**
+     * @var string
+     */
     protected $source;
 
     /**
      * @var FixedTextDefinition[]
+     * @psalm-suppress PossiblyNullPropertyAssignmentValue
      */
-    protected $fieldDefinition;
+    protected $fieldDefinition = null;
+
+    /**
+     * @var string
+     */
     protected $sourceType;
 
     /**
@@ -57,7 +65,9 @@ class FixedTextFileDataset
      */
     public function withFieldDefinition($fieldDefinition)
     {
-
+        /**
+         * @psalm-suppress DocblockTypeContradiction
+         */
         if (!is_array($fieldDefinition)) {
             throw new InvalidArgumentException("You must define an array of FixedTextDefinition class.");
         }
