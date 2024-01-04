@@ -17,15 +17,20 @@ See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 This type of files uses a delimiter to define each field. The most common formart is CSV but you can use your own based on a regular expression.
 The class TextFileIterator has three constants with pre-defined formats:
 
-    - TextFileDataset::CSVFILE - A generic file definition. It accept both `,` and `;` as delimiter. 
-    - TextFileDataset::CSVFILE_COMMA - The CSV file. It accept only `,` as delimiter. 
-    - TextFileDataset::CSVFILE_SEMICOLON - A CSV variation. It accept only `;` as delimiter. 
+- TextFileDataset::CSVFILE - A generic file definition. It accept both `,` and `;` as delimiter. 
+- TextFileDataset::CSVFILE_COMMA - The CSV file. It accept only `,` as delimiter. 
+ - TextFileDataset::CSVFILE_SEMICOLON - A CSV variation. It accept only `;` as delimiter. 
 
+example1.csv
+```csv
+Joao;Magalhaes
+John;Doe
+Jane;Smith
+```
+example1.php
 ```php
 <?php
-$file = "Joao;Magalhaes
-John;Doe
-Jane;Smith";
+$file = file_get_contents("example1.csv");
     
 $dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
     ->withFields(["name", "surname"])
@@ -40,11 +45,17 @@ foreach ($iterator as $row) {
 
 ### Text File Delimited (CSV) - Get field names from first line
 
+example2.csv
+```csv
+firstname;lastname
+John;Doe
+Jane;Smith
+```
+
+example2.php
 ```php
 <?php
-$file = "firstname;lastname
-John;Doe
-Jane;Smith";
+$file = file_get_contents("example2.csv");
     
 // If omit `withFields` will get the field names from first line of the file
 $dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
@@ -190,7 +201,9 @@ $formatter->toText();
 
 ## Install
 
-Just type: `composer require "byjg/anydataset-text=4.2.*"`
+```
+composer require "byjg/anydataset-text"
+```
 
 ## Running Unit tests
 
