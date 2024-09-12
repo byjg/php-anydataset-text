@@ -9,34 +9,34 @@ class TextFileIterator extends GenericIterator
 {
 
     /** @var array */
-    protected $fields;
+    protected array $fields;
 
     /** @var string */
-    protected $fieldexpression;
+    protected string $fieldexpression;
 
     /** @var string */
-    protected $eofChar;
+    protected string $eofChar;
 
-    /** @var resource */
+    /** @var resource|closed-resource */
     protected $handle;
 
     /** @var int */
-    protected $current = 0;
+    protected int $current = 0;
 
     /** @var bool|string */
-    protected $currentBuffer = "";
+    protected string|bool $currentBuffer = "";
 
     /**
      * @access public
-     * @param resource $handle
+     * @param resource|closed-resource $handle
      * @param array $fields
      * @param string $eofChar
-     * @param string $fieldexpression
+     * @param string $fieldExpression
      */
-    public function __construct($handle, $fields, $fieldexpression, $eofChar)
+    public function __construct($handle, array $fields, string $fieldExpression, string $eofChar)
     {
         $this->fields = $fields;
-        $this->fieldexpression = $fieldexpression;
+        $this->fieldexpression = $fieldExpression;
         $this->eofChar = $eofChar;
         $this->handle = $handle;
 
@@ -46,21 +46,15 @@ class TextFileIterator extends GenericIterator
     /**
      * @return void
      */
-    protected function readNextLine()
+    protected function readNextLine(): void
     {
         if (!$this->hasNext()) {
             return;
         }
 
         if (empty($this->eofChar)) {
-            /**
-             * @psalm-suppress PossiblyNullArgument
-             */
             $buffer = fgets($this->handle, 8192);
         } else {
-            /**
-             * @psalm-suppress PossiblyNullArgument
-             */
             $buffer = stream_get_line($this->handle, 8192, $this->eofChar);
         }
         
@@ -93,21 +87,12 @@ class TextFileIterator extends GenericIterator
             return true;
         }
 
-        /**
-         * @psalm-suppress DocblockTypeContradiction
-         */
         if (!$this->handle) {
             return false;
         }
 
         if (feof($this->handle)) {
-            /**
-             * @psalm-suppress InvalidPropertyAssignmentValue
-             */
             fclose($this->handle);
-            /**
-             * @psalm-suppress PossiblyNullPropertyAssignmentValue
-             */
             $this->handle = null;
             return false;
         }
@@ -117,14 +102,11 @@ class TextFileIterator extends GenericIterator
 
     /**
      * @inheritDoc
-     * @throws \ByJG\Serializer\Exception\InvalidArgumentException
+     * @return Row|null
      */
     public function moveNext(): ?Row
     {
         if ($this->hasNext()) {
-            /**
-             * @psalm-suppress InvalidScalarArgument
-             */
             $cols = preg_split($this->fieldexpression, preg_replace("/(\r?\n?)$/", "", $this->currentBuffer), -1, PREG_SPLIT_DELIM_CAPTURE);
 
             $row = new Row();
@@ -146,13 +128,7 @@ class TextFileIterator extends GenericIterator
             return $row;
         }
 
-        /**
-         * @psalm-suppress RedundantConditionGivenDocblockType
-         */
         if ($this->handle) {
-            /**
-             * @psalm-suppress InvalidPropertyAssignmentValue
-             */
             fclose($this->handle);
         }
         return null;

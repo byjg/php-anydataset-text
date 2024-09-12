@@ -54,9 +54,6 @@ class CSVFormatter extends BaseFormatter
 
         if ($this->outputHeader) {
             $row = $iterator->moveNext();
-            /**
-             * @psalm-suppress PossiblyNullReference
-             */
             $lines .= $this->rowRaw(array_keys($row->toArray()));
             $lines .= $this->rowRaw($row->toArray());
         }

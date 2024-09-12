@@ -6,7 +6,6 @@ use ByJG\AnyDataset\Core\Exception\DatasetException;
 use ByJG\AnyDataset\Core\Exception\NotFoundException;
 use ByJG\AnyDataset\Core\GenericIterator;
 use Exception;
-use InvalidArgumentException;
 
 class TextFileDataset
 {
@@ -126,9 +125,6 @@ class TextFileDataset
     {
         $buffer = preg_replace("/(\r?\n?)$/", "", fgets($handle, 4096));
         $fieldList = preg_split($this->fieldexpression, $buffer, -1, PREG_SPLIT_DELIM_CAPTURE);
-        /**
-         * @psalm-suppress MissingClosureParamType
-         */
         return array_map(function ($value) {
             return preg_replace("/^[\"'](.*)[\"']$/", "$1", $value);
         }, $fieldList);

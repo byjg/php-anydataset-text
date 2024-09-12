@@ -2,14 +2,12 @@
 
 namespace ByJG\AnyDataset\Text\Formatter;
 
-use ByJG\AnyDataset\Core\AnyDataset;
 use ByJG\AnyDataset\Core\Formatter\BaseFormatter;
 use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Core\Row;
 use ByJG\AnyDataset\Text\Definition\FixedTextDefinition;
 use ByJG\AnyDataset\Text\Definition\TextTypeEnum;
 use ByJG\AnyDataset\Text\Exception\MalformedException;
-use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 
 class FixedSizeColumnFormatter extends BaseFormatter
 {
@@ -71,9 +69,6 @@ class FixedSizeColumnFormatter extends BaseFormatter
             $fieldDefinition = [$fieldDefinition];
         }
 
-        /**
-         * @psalm-suppress MissingClosureReturnType
-         */
         usort($fieldDefinition, function($a, $b) { return $a->startPos - $b->startPos; });
        
         $line = "";
