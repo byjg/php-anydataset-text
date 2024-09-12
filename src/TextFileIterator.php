@@ -78,7 +78,7 @@ class TextFileIterator extends GenericIterator
      * @access public
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return -1;
     }
@@ -87,7 +87,7 @@ class TextFileIterator extends GenericIterator
      * @access public
      * @return bool
      */
-    public function hasNext()
+    public function hasNext(): bool
     {
         if ($this->currentBuffer !== false) {
             return true;
@@ -119,7 +119,7 @@ class TextFileIterator extends GenericIterator
      * @inheritDoc
      * @throws \ByJG\Serializer\Exception\InvalidArgumentException
      */
-    public function moveNext()
+    public function moveNext(): ?Row
     {
         if ($this->hasNext()) {
             /**
@@ -158,7 +158,7 @@ class TextFileIterator extends GenericIterator
         return null;
     }
 
-    public function key()
+    public function key(): int
     {
         return $this->current;
     }

@@ -6,7 +6,8 @@ use ByJG\AnyDataset\Core\AnyDataset;
 use ByJG\AnyDataset\Core\Formatter\BaseFormatter;
 use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Core\Row;
-use ByJG\AnyDataset\Text\Enum\FixedTextDefinition;
+use ByJG\AnyDataset\Text\Definition\FixedTextDefinition;
+use ByJG\AnyDataset\Text\Definition\TextTypeEnum;
 use ByJG\AnyDataset\Text\Exception\MalformedException;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 
@@ -15,17 +16,17 @@ class FixedSizeColumnFormatter extends BaseFormatter
     /**
      * @var FixedTextDefinition[]
      */
-    protected $fieldDefinition;
+    protected array $fieldDefinition;
     
     /**
      * @var string
      */
-    protected $padNumber = '0';
+    protected string $padNumber = '0';
 
     /**
      * @var string
      */
-    protected $padString = " ";
+    protected string $padString = " ";
 
     /**
      * 
@@ -33,7 +34,7 @@ class FixedSizeColumnFormatter extends BaseFormatter
      * @param GenericIterator|Row $anydataset
      * @param FixedTextDefinition[] $fieldDefinition
      */
-    public function __construct($anydataset, $fieldDefinition)
+    public function __construct(GenericIterator|Row $anydataset, array $fieldDefinition)
     {
         parent::__construct($anydataset);
 
@@ -43,8 +44,9 @@ class FixedSizeColumnFormatter extends BaseFormatter
     /**
      * @param GenericIterator $iterator
      * @return string
+     * @throws MalformedException
      */
-    protected function anydatasetRaw($iterator)
+    protected function anydatasetRaw(GenericIterator $iterator): string
     {
         $lines = "";
         foreach ($iterator as $row) {
@@ -56,11 +58,11 @@ class FixedSizeColumnFormatter extends BaseFormatter
 
     /**
      * @param array $row
-     * @param null|FixedTextDefinition[]|FixedTextDefinition $fieldDefinition
+     * @param FixedTextDefinition|FixedTextDefinition[]|null $fieldDefinition
      * @param string $eof
      * @return string
      */
-    protected function rowRaw($row, $fieldDefinition = null, $eof = "\n")
+    protected function rowRaw(array $row, FixedTextDefinition|array $fieldDefinition = null, string $eof = "\n"): string
     {
         if (empty($fieldDefinition)) {
             $fieldDefinition = $this->fieldDefinition;
@@ -88,23 +90,18 @@ class FixedSizeColumnFormatter extends BaseFormatter
                 throw new MalformedException("Field '$definition->fieldName' requires to be one of '" . implode(",", $definition->requiredValue) . "' but I found '$value'");
             }
 
-            if ($definition->type == FixedTextDefinition::TYPE_NUMBER) {
+            if ($definition->type == TextTypeEnum::NUMBER) {
                 $line .= str_pad($value, $definition->length, $this->padNumber, STR_PAD_LEFT);
             } else {
                 $line .= str_pad($value, $definition->length, $this->padString, STR_PAD_RIGHT);
             }
 
             if (!empty($definition->subTypes)) {
-                $subTypes = $definition->subTypes;
-                /**
-                 * @psalm-suppress RedundantConditionGivenDocblockType
-                 */
-                if (is_array($definition->subTypes)) {
-                    if (!isset($definition->subTypes[$value])) {
-                        throw new MalformedException("Sub type '$value' doesn't exist");
-                    }
-                    $subTypes = $definition->subTypes[$value];
+                $subTypes = null;
+                if (!isset($definition->subTypes[$value])) {
+                    throw new MalformedException("Sub type '$value' doesn't exist");
                 }
+                $subTypes = $definition->subTypes[$value];
                 $line .= $this->rowRaw($row, $subTypes, "");
             }
         }
@@ -113,8 +110,9 @@ class FixedSizeColumnFormatter extends BaseFormatter
 
     /**
      * @return string
+     * @throws MalformedException
      */
-    public function raw()
+    public function raw(): string
     {
         if ($this->object instanceof GenericIterator) {
             return $this->anydatasetRaw($this->object);
@@ -123,7 +121,10 @@ class FixedSizeColumnFormatter extends BaseFormatter
     }
 
 
-    public function toText()
+    /**
+     * @throws MalformedException
+     */
+    public function toText(): string
     {
         return $this->raw();
     }
@@ -133,7 +134,8 @@ class FixedSizeColumnFormatter extends BaseFormatter
 	 * 
 	 * @return string
 	 */
-	function getPadNumber() {
+	function getPadNumber(): string
+    {
 		return $this->padNumber;
 	}
 	
@@ -142,13 +144,15 @@ class FixedSizeColumnFormatter extends BaseFormatter
 	 * @param string $padNumber 
      * @return void
 	 */
-	function setPadNumber($padNumber) {
+	function setPadNumber(string $padNumber): void
+    {
 		$this->padNumber = $padNumber;
 	}
 	/**
 	 * @return string
 	 */
-	function getPadString() {
+	function getPadString(): string
+    {
 		return $this->padString;
 	}
 	
@@ -156,7 +160,8 @@ class FixedSizeColumnFormatter extends BaseFormatter
 	 * @param string $padString 
      * @return void
 	 */
-	function setPadString($padString) {
+	function setPadString(string $padString): void
+    {
 		$this->padString = $padString;
 	}
 }
