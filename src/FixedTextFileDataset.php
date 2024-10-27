@@ -2,10 +2,10 @@
 
 namespace ByJG\AnyDataset\Text;
 
-use ByJG\AnyDataset\Core\GenericIterator;
-use ByJG\AnyDataset\Text\Enum\FixedTextDefinition;
 use ByJG\AnyDataset\Core\Exception\DatasetException;
 use ByJG\AnyDataset\Core\Exception\NotFoundException;
+use ByJG\AnyDataset\Core\GenericIterator;
+use ByJG\AnyDataset\Text\Definition\FixedTextDefinition;
 use Exception;
 use InvalidArgumentException;
 
@@ -15,18 +15,17 @@ class FixedTextFileDataset
     /**
      * @var string
      */
-    protected $source;
+    protected string $source;
 
     /**
      * @var FixedTextDefinition[]
-     * @psalm-suppress PossiblyNullPropertyAssignmentValue
      */
-    protected $fieldDefinition = null;
+    protected ?array $fieldDefinition = null;
 
     /**
      * @var string
      */
-    protected $sourceType;
+    protected string $sourceType;
 
     /**
      * Text File Data Set
@@ -34,7 +33,7 @@ class FixedTextFileDataset
      * @param string $source
      * @throws NotFoundException
      */
-    protected function __construct($source)
+    protected function __construct(string $source)
     {
         $this->source = $source;
         $this->sourceType = "HTTP";
@@ -53,25 +52,19 @@ class FixedTextFileDataset
      *
      * @param string $source
      * @return FixedTextFileDataset
+     * @throws NotFoundException
      */
-    public static function getInstance($source)
+    public static function getInstance(string $source): FixedTextFileDataset
     {
         return new FixedTextFileDataset($source);
     }
 
     /**
      * @param FixedTextDefinition[] $fieldDefinition
-     * @return FixedTextFileDataset
+     * @return static
      */
-    public function withFieldDefinition($fieldDefinition)
+    public function withFieldDefinition(array $fieldDefinition): static
     {
-        /**
-         * @psalm-suppress DocblockTypeContradiction
-         */
-        if (!is_array($fieldDefinition)) {
-            throw new InvalidArgumentException("You must define an array of FixedTextDefinition class.");
-        }
-
         $this->fieldDefinition = $fieldDefinition;
 
         return $this;
@@ -83,7 +76,7 @@ class FixedTextFileDataset
      * @throws DatasetException
      * @throws Exception
      */
-    public function getIterator()
+    public function getIterator(): GenericIterator
     {
         if (empty($this->fieldDefinition)) {
             throw new InvalidArgumentException("Field definition is empty");
@@ -99,7 +92,7 @@ class FixedTextFileDataset
      * @return GenericIterator
      * @throws DatasetException
      */
-    protected function getIteratorHttp()
+    protected function getIteratorHttp(): GenericIterator
     {
         // Expression Regular:
         // [1]: http or ftp
@@ -131,7 +124,7 @@ class FixedTextFileDataset
      * @return GenericIterator
      * @throws DatasetException
      */
-    protected function getIteratorFile()
+    protected function getIteratorFile(): GenericIterator
     {
         $handle = fopen($this->source, "r");
         if (!$handle) {

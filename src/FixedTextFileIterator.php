@@ -2,10 +2,11 @@
 
 namespace ByJG\AnyDataset\Text;
 
+use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Core\Row;
-use ByJG\AnyDataset\Text\Enum\FixedTextDefinition;
-use ByJG\AnyDataset\Core\Exception\IteratorException;
+use ByJG\AnyDataset\Text\Definition\FixedTextDefinition;
+use ByJG\AnyDataset\Text\Definition\TextTypeEnum;
 
 class FixedTextFileIterator extends GenericIterator
 {
@@ -14,24 +15,24 @@ class FixedTextFileIterator extends GenericIterator
      *
      * @var FixedTextDefinition[]
      */
-    protected $fields;
+    protected array $fields;
 
     /**
-     * @var resource
+     * @var resource|closed-resource
      */
     protected $handle;
 
     /**
      * @var int
      */
-    protected $current = 0;
+    protected int $current = 0;
 
     /**
      *
-     * @param resource $handle
+     * @param resource|closed-resource $handle
      * @param FixedTextDefinition[] $fieldDefinition
      */
-    public function __construct($handle, $fieldDefinition)
+    public function __construct($handle, array $fieldDefinition)
     {
         $this->fields = $fieldDefinition;
         $this->handle = $handle;
@@ -41,7 +42,7 @@ class FixedTextFileIterator extends GenericIterator
     /**
      * @inheritDoc
      */
-    public function count()
+    public function count(): int
     {
         return -1;
     }
@@ -49,19 +50,13 @@ class FixedTextFileIterator extends GenericIterator
     /**
      * @inheritDoc
      */
-    public function hasNext()
+    public function hasNext(): bool
     {
-        /**
-         * @psalm-suppress DocblockTypeContradiction
-         */
         if (!$this->handle) {
             return false;
         }
 
         if (feof($this->handle)) {
-            /**
-             * @psalm-suppress InvalidPropertyAssignmentValue
-             */
             fclose($this->handle);
 
             return false;
@@ -74,7 +69,7 @@ class FixedTextFileIterator extends GenericIterator
     /**
      * @inheritDoc
      */
-    public function moveNext()
+    public function moveNext(): ?Row
     {
         if ($this->hasNext()) {
             $buffer = fgets($this->handle, 8192);
@@ -89,13 +84,7 @@ class FixedTextFileIterator extends GenericIterator
             return new Row($retFields);
         }
 
-        /**
-         * @psalm-suppress RedundantConditionGivenDocblockType
-         */
         if ($this->handle) {
-            /**
-             * @psalm-suppress InvalidPropertyAssignmentValue
-             */
             fclose($this->handle);
         }
         return null;
@@ -107,7 +96,7 @@ class FixedTextFileIterator extends GenericIterator
      * @return array
      * @throws IteratorException
      */
-    protected function processBuffer($buffer, $fieldDefinition)
+    protected function processBuffer(string $buffer, array $fieldDefinition): array
     {
         $cntDef = count($fieldDefinition);
         $fieldList = [];
@@ -125,12 +114,13 @@ class FixedTextFileIterator extends GenericIterator
                 );
             }
 
-            if (empty($fieldDef->subTypes) && $fieldDef->type == FixedTextDefinition::TYPE_NUMBER) {
+            if (empty($fieldDef->subTypes) && $fieldDef->type == TextTypeEnum::NUMBER) {
                 /**
                  * This will convert the string to number. 
-                 * @psalm-suppress InvalidOperand
                  */
-                $fieldList[$fieldDef->fieldName] = $fieldList[$fieldDef->fieldName] + 0;
+                $intVal = intval($fieldList[$fieldDef->fieldName]);
+                $floatVal = floatval($fieldList[$fieldDef->fieldName]);
+                $fieldList[$fieldDef->fieldName] = ($intVal == $floatVal) ? $intVal : $floatVal;
             }
 
             if (is_array($fieldDef->subTypes)) {
@@ -138,9 +128,6 @@ class FixedTextFileIterator extends GenericIterator
                     throw new IteratorException("Subtype does not match");
                 }
 
-                /**
-                 * @psalm-suppress PossiblyInvalidArrayOffset
-                 */
                 $value = $fieldDef->subTypes[$fieldList[$fieldDef->fieldName]];
 
                 if (!is_array($value)) {
@@ -149,9 +136,6 @@ class FixedTextFileIterator extends GenericIterator
 
                 $fieldList = array_merge(
                     $fieldList,
-                    /**
-                     * @psalm-suppress PossiblyNullArgument
-                     */
                     $this->processBuffer($buffer, $value)
                 );
             }
@@ -160,7 +144,7 @@ class FixedTextFileIterator extends GenericIterator
         return $fieldList;
     }
 
-    public function key()
+    public function key(): int
     {
         return $this->current;
     }

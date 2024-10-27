@@ -5,12 +5,14 @@ namespace Tests\AnyDataset\Dataset;
 use ByJG\AnyDataset\Core\AnyDataset;
 use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\Row;
+use ByJG\AnyDataset\Text\Definition\TextTypeEnum;
 use ByJG\AnyDataset\Text\FixedTextFileDataset;
-use ByJG\AnyDataset\Text\Enum\FixedTextDefinition;
+use ByJG\AnyDataset\Text\Definition\FixedTextDefinition;
 use ByJG\AnyDataset\Text\Exception\MalformedException;
 use ByJG\AnyDataset\Text\Formatter\FixedSizeColumnFormatter;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use SebastianBergmann\CodeCoverage\Report\Text;
 
 class FixedTextFileDatasetTest extends TestCase
 {
@@ -23,10 +25,10 @@ class FixedTextFileDatasetTest extends TestCase
     public function testGetIterator()
     {
         $fieldDefinition = [
-            new FixedTextDefinition('id', 0, 3, FixedTextDefinition::TYPE_NUMBER),
+            new FixedTextDefinition('id', 0, 3, TextTypeEnum::NUMBER),
             new FixedTextDefinition('name', 3, 7),
-            new FixedTextDefinition('enable', 10, 1, FixedTextDefinition::TYPE_STRING, ['S', 'N']),
-            new FixedTextDefinition('code', 11, 4, FixedTextDefinition::TYPE_NUMBER),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['S', 'N']),
+            new FixedTextDefinition('code', 11, 4, TextTypeEnum::NUMBER),
         ];
 
         $repository = FixedTextFileDataset::getInstance(__DIR__ . '/sample-fixed.txt')
@@ -60,7 +62,7 @@ class FixedTextFileDatasetTest extends TestCase
         $fieldDefinition = [
             new FixedTextDefinition('id', 0, 3),
             new FixedTextDefinition('name', 3, 7),
-            new FixedTextDefinition('enable', 10, 1, FixedTextDefinition::TYPE_STRING, ['Y', 'N']),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['Y', 'N']),
             new FixedTextDefinition('code', 11, 4),
         ];
 
@@ -76,18 +78,18 @@ class FixedTextFileDatasetTest extends TestCase
     public function testGetIterator_SubTypes()
     {
         $fieldDefinition = [
-            new FixedTextDefinition('id', 0, 3, FixedTextDefinition::TYPE_NUMBER),
+            new FixedTextDefinition('id', 0, 3, TextTypeEnum::NUMBER),
             new FixedTextDefinition('name', 3, 7),
             new FixedTextDefinition(
                 'enable',
                 10,
                 1,
-                FixedTextDefinition::TYPE_STRING,
+                TextTypeEnum::STRING,
                 null,
                 [
                     "S" => [
-                        new FixedTextDefinition('first', 11, 1, FixedTextDefinition::TYPE_NUMBER),
-                        new FixedTextDefinition('second', 12, 3, FixedTextDefinition::TYPE_NUMBER),
+                        new FixedTextDefinition('first', 11, 1, TextTypeEnum::NUMBER),
+                        new FixedTextDefinition('second', 12, 3, TextTypeEnum::NUMBER),
                     ],
                     "N" => [
                         new FixedTextDefinition('reason', 11, 4),
@@ -132,7 +134,7 @@ class FixedTextFileDatasetTest extends TestCase
                 'enable',
                 10,
                 1,
-                FixedTextDefinition::TYPE_STRING,
+                TextTypeEnum::STRING,
                 null,
                 [
                     "Y" => [
@@ -167,7 +169,7 @@ class FixedTextFileDatasetTest extends TestCase
                 'enable',
                 10,
                 1,
-                FixedTextDefinition::TYPE_STRING,
+                TextTypeEnum::STRING,
                 null,
                 [
                     "S" => [
@@ -188,8 +190,8 @@ class FixedTextFileDatasetTest extends TestCase
     {
         $fieldDefinition = [
             new FixedTextDefinition('name', 3, 7),
-            new FixedTextDefinition('id', 0, 3, FixedTextDefinition::TYPE_NUMBER),
-            new FixedTextDefinition('enable', 10, 1, FixedTextDefinition::TYPE_STRING, ['S', 'N']),
+            new FixedTextDefinition('id', 0, 3, TextTypeEnum::NUMBER),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['S', 'N']),
             new FixedTextDefinition('code', 11, 4),
         ];
 
@@ -211,7 +213,7 @@ class FixedTextFileDatasetTest extends TestCase
         $fieldDefinition = [
             new FixedTextDefinition('name', 3, 7),
             new FixedTextDefinition('id', 0, 3),
-            new FixedTextDefinition('enable', 10, 1, FixedTextDefinition::TYPE_STRING, ['S', 'N']),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['S', 'N']),
             new FixedTextDefinition('code', 11, 4),
         ];
 
@@ -233,7 +235,7 @@ class FixedTextFileDatasetTest extends TestCase
         $fieldDefinition = [
             new FixedTextDefinition('name', 3, 7),
             new FixedTextDefinition('id', 0, 3),
-            new FixedTextDefinition('enable', 10, 1, FixedTextDefinition::TYPE_STRING, ['S', 'N']),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['S', 'N']),
             new FixedTextDefinition('code', 11, 4),
         ];
 
@@ -255,7 +257,7 @@ class FixedTextFileDatasetTest extends TestCase
         $fieldDefinition = [
             new FixedTextDefinition('name', 3, 7),
             new FixedTextDefinition('id', 0, 3),
-            new FixedTextDefinition('enable', 10, 1, FixedTextDefinition::TYPE_STRING, ['S', 'N']),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['S', 'N']),
             new FixedTextDefinition('code', 11, 4),
         ];
 
@@ -271,13 +273,13 @@ class FixedTextFileDatasetTest extends TestCase
     public function testRowFormatter_2()
     {
         $fieldDefinition = [
-            new FixedTextDefinition('id', 0, 3, FixedTextDefinition::TYPE_NUMBER),
+            new FixedTextDefinition('id', 0, 3, TextTypeEnum::NUMBER),
             new FixedTextDefinition('name', 3, 7),
             new FixedTextDefinition(
                 'enable',
                 10,
                 1,
-                FixedTextDefinition::TYPE_STRING,
+                TextTypeEnum::STRING,
                 null,
                 [
                     "S" => [
@@ -308,73 +310,4 @@ class FixedTextFileDatasetTest extends TestCase
         $formatter = new FixedSizeColumnFormatter($row, $fieldDefinition);
         $this->assertEquals("001Joao   S1520\n", $formatter->toText());
     }
-
-    public function testRowFormatter_2_Error_1()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage("Type must be 'string' or 'number'");
-
-        $fieldDefinition = [
-            new FixedTextDefinition('id', 0, 3),
-            new FixedTextDefinition('name', 3, 7),
-            new FixedTextDefinition(
-                'enable',
-                10,
-                1,
-                null,   # <--- Error
-                null,
-                [
-                    "S" => [
-                        new FixedTextDefinition('first', 11, 1),
-                        new FixedTextDefinition('second', 12, 3),
-                    ],
-                    "N" => new FixedTextDefinition('reason', 11, 4)
-                ]
-            ),
-        ];
-    
-        $row = new Row([
-            "id" => 1,
-            "name" => "Joao",
-            "enable" => "X",
-            "reason" => "NONE",
-        ]);
-        $formatter = new FixedSizeColumnFormatter($row, $fieldDefinition);
-        $formatter->toText();
-    }
-
-    public function testRowFormatter_2_Error_2()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage("Required Value must be empty or an ARRAY of values");
-
-        $fieldDefinition = [
-            new FixedTextDefinition('id', 0, 3),
-            new FixedTextDefinition('name', 3, 7),
-            new FixedTextDefinition(
-                'enable',
-                10,
-                1,
-                FixedTextDefinition::TYPE_STRING,
-                "S",    # <--- Error
-                [
-                    "S" => [
-                        new FixedTextDefinition('first', 11, 1),
-                        new FixedTextDefinition('second', 12, 3),
-                    ],
-                    "N" => new FixedTextDefinition('reason', 11, 4)
-                ]
-            ),
-        ];
-    
-        $row = new Row([
-            "id" => 1,
-            "name" => "Joao",
-            "enable" => "X",
-            "reason" => "NONE",
-        ]);
-        $formatter = new FixedSizeColumnFormatter($row, $fieldDefinition);
-        $formatter->toText();
-    }
-
 }

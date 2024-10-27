@@ -103,10 +103,10 @@ $file = "".
     "002GILBERTS1621\n";
 
 $fieldDefinition = [
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('id', 0, 3, FixedTextDefinition::TYPE_NUMBER),
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('name', 3, 7, FixedTextDefinition::TYPE_STRING),
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('enable', 10, 1, FixedTextDefinition::TYPE_STRING, ['S', 'N']), // Required values --> S or N
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('code', 11, 4, FixedTextDefinition::TYPE_NUMBER),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 0, 3, FixedTextDefinition::TYPE_NUMBER),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('name', 3, 7, FixedTextDefinition::TYPE_STRING),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('enable', 10, 1, FixedTextDefinition::TYPE_STRING, ['S', 'N']), // Required values --> S or N
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('code', 11, 4, FixedTextDefinition::TYPE_NUMBER),
 ];
 
 $dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset($file)
@@ -130,9 +130,9 @@ $file = "".
     "002GILBERTS1621\n";
 
 $fieldDefinition = [
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('id', 0, 3),
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('name', 3, 7),
-    new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition(
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 0, 3),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('name', 3, 7),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
         'enable',
         10,
         1,
@@ -140,11 +140,11 @@ $fieldDefinition = [
         null,
         [
             "S" => [
-                new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('first', 11, 1),
-                new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('second', 12, 3),
+                new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('first', 11, 1),
+                new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('second', 12, 3),
             ],
             "N" => [
-                new \ByJG\AnyDataset\Text\Enum\FixedTextDefinition('reason', 11, 4),
+                new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('reason', 11, 4),
             ]
         ]
     ),

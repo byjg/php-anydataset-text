@@ -54,9 +54,6 @@ class CSVFormatter extends BaseFormatter
 
         if ($this->outputHeader) {
             $row = $iterator->moveNext();
-            /**
-             * @psalm-suppress PossiblyNullReference
-             */
             $lines .= $this->rowRaw(array_keys($row->toArray()));
             $lines .= $this->rowRaw($row->toArray());
         }
@@ -87,7 +84,7 @@ class CSVFormatter extends BaseFormatter
         return $line . "\n";
     }
 
-    public function raw()
+    public function raw(): mixed
     {
         if ($this->object instanceof GenericIterator) {
             return $this->anydatasetRaw($this->object);
@@ -96,7 +93,7 @@ class CSVFormatter extends BaseFormatter
     }
 
 
-    public function toText()
+    public function toText(): string
     {
         return $this->raw();
     }
