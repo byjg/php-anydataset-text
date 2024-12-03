@@ -1,18 +1,16 @@
 <?php
 
-namespace Tests\AnyDataset\Dataset;
+namespace Tests;
 
-use ByJG\AnyDataset\Core\AnyDataset;
 use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\Row;
-use ByJG\AnyDataset\Text\Definition\TextTypeEnum;
-use ByJG\AnyDataset\Text\FixedTextFileDataset;
 use ByJG\AnyDataset\Text\Definition\FixedTextDefinition;
+use ByJG\AnyDataset\Text\Definition\TextTypeEnum;
 use ByJG\AnyDataset\Text\Exception\MalformedException;
+use ByJG\AnyDataset\Text\FixedTextFileDataset;
 use ByJG\AnyDataset\Text\Formatter\FixedSizeColumnFormatter;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use SebastianBergmann\CodeCoverage\Report\Text;
 
 class FixedTextFileDatasetTest extends TestCase
 {

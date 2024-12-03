@@ -72,6 +72,7 @@ class CSVFormatter extends BaseFormatter
     protected function rowRaw($row)
     {
         $line = "";
+        $first = true;
         foreach ($row as $value) {
             $value = str_replace($this->quote, $this->quote . $this->quote, $value);
             $quoteStr = 
@@ -79,7 +80,8 @@ class CSVFormatter extends BaseFormatter
                 || ($this->getApplyQuote() == self::APPLY_QUOTE_WHEN_REQUIRED && (!is_numeric($value) && (strpos($value, $this->quote) !== false || strpos($value, $this->delimiter) !== false)))
                 || ($this->getApplyQuote() == self::APPLY_QUOTE_ALL_STRINGS && !is_numeric($value))
                 ? $this->quote : "";
-            $line .= (!empty($line) ? $this->delimiter : "") . $quoteStr . $value . $quoteStr;
+            $line .= ($first ? "" : $this->delimiter) . $quoteStr . $value . $quoteStr;
+            $first = false;
         }
         return $line . "\n";
     }

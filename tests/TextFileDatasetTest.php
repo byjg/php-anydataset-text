@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\AnyDataset\Dataset;
+namespace Tests;
 
-use ByJG\AnyDataset\Core\AnyDataset;
 use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Core\IteratorInterface;
 use ByJG\AnyDataset\Core\Row;
+use ByJG\AnyDataset\Lists\ArrayDataset;
 use ByJG\AnyDataset\Text\Formatter\CSVFormatter;
 use ByJG\AnyDataset\Text\TextFileDataset;
 use PHPUnit\Framework\TestCase;
@@ -13,12 +13,12 @@ use PHPUnit\Framework\TestCase;
 class TextFileDatasetTest extends TestCase
 {
 
-    protected static $fieldNames;
-    protected static $fileName_Unix = "";
-    protected static $fileName_Windows = "";
-    protected static $fileName_MacClassic = "";
-    protected static $fileName_BlankLine = "";
-    protected static $firstline_Header = "";
+    protected static array $fieldNames;
+    protected static string $fileName_Unix = "";
+    protected static string  $fileName_Windows = "";
+    protected static string $fileName_MacClassic = "";
+    protected static string $fileName_BlankLine = "";
+    protected static string $firstline_Header = "";
 
     const REMOTEURL = "https://opensource-test-resources.web.app/%s";
 
@@ -409,5 +409,24 @@ class TextFileDatasetTest extends TestCase
         $result = $it->toArray();
 
         $this->assertEquals($qty, count($result));
+    }
+
+    public function testCsvFromArrayDataSet()
+    {
+        $data = [
+            ["field1" => 1, "field2" => "STRING1", "field3" => "VALUE1"],
+            ["field1" => 2, "field2" => "STRING2", "field3" => "VALUE2"],
+            ["field1" => 3, "field2" => "STRING3", "field3" => "VALUE3"],
+        ];
+
+        $anydataset = new ArrayDataset($data);
+        $formatter = new CSVFormatter($anydataset->getIterator());
+
+        $text = "__id,__key,field1,field2,field3\n" .
+            "0,0,1,STRING1,VALUE1\n" .
+            "1,1,2,STRING2,VALUE2\n" .
+            "2,2,3,STRING3,VALUE3\n";
+
+        $this->assertEquals($text, $formatter->toText());
     }
 }
