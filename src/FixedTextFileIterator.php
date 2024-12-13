@@ -4,9 +4,11 @@ namespace ByJG\AnyDataset\Text;
 
 use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\GenericIterator;
-use ByJG\AnyDataset\Core\Row;
+use ByJG\AnyDataset\Core\RowArray;
+use ByJG\AnyDataset\Core\RowInterface;
 use ByJG\AnyDataset\Text\Definition\FixedTextDefinition;
 use ByJG\AnyDataset\Text\Definition\TextTypeEnum;
+use ReturnTypeWillChange;
 
 class FixedTextFileIterator extends GenericIterator
 {
@@ -23,9 +25,9 @@ class FixedTextFileIterator extends GenericIterator
     protected $handle;
 
     /**
-     * @var int
+     * @var array
      */
-    protected int $current = 0;
+    private array $current;
 
     /**
      *
@@ -36,58 +38,32 @@ class FixedTextFileIterator extends GenericIterator
     {
         $this->fields = $fieldDefinition;
         $this->handle = $handle;
-        $this->current = 0;
+        $this->current = [
+            'row' => null,
+            'i' => 0,
+        ];
+
+        $this->readNextLine();
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function count(): int
+    protected function readNextLine(): ?RowInterface
     {
-        return -1;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function hasNext(): bool
-    {
-        if (!$this->handle) {
-            return false;
+        if (!$this->valid()) {
+            return null;
         }
 
-        if (feof($this->handle)) {
-            fclose($this->handle);
+        $buffer = fgets($this->handle, 8192);
 
-            return false;
-        }
-
-        return true;
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function moveNext(): ?Row
-    {
-        if ($this->hasNext()) {
-            $buffer = fgets($this->handle, 8192);
-
-            if ($buffer == "") {
-                return new Row();
-            }
-
+        if (!empty($buffer)) {
             $retFields = $this->processBuffer($buffer, $this->fields);
-
-            $this->current++;
-            return new Row($retFields);
+            $row = new RowArray($retFields);
+        } else {
+            $row = new RowArray();
         }
 
-        if ($this->handle) {
-            fclose($this->handle);
-        }
-        return null;
+        $this->current["row"] = $row;
+
+        return $row;
     }
 
     /**
@@ -146,6 +122,36 @@ class FixedTextFileIterator extends GenericIterator
 
     public function key(): int
     {
-        return $this->current;
+        return $this->current["i"];
+    }
+
+    #[ReturnTypeWillChange]
+    public function current(): ?RowInterface
+    {
+        return $this->current["row"];
+    }
+
+    #[ReturnTypeWillChange]
+    public function next(): void
+    {
+        $this->current["i"]++;
+        $this->current["row"] = null;
+        $this->readNextLine();
+    }
+
+    #[ReturnTypeWillChange]
+    public function valid(): bool
+    {
+        if (!$this->handle) {
+            return false;
+        }
+
+        if (feof($this->handle)) {
+            fclose($this->handle);
+            $this->handle = null;
+            return true;
+        }
+
+        return true;
     }
 }

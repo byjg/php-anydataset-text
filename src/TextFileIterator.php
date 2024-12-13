@@ -3,7 +3,8 @@
 namespace ByJG\AnyDataset\Text;
 
 use ByJG\AnyDataset\Core\GenericIterator;
-use ByJG\AnyDataset\Core\Row;
+use ByJG\AnyDataset\Core\RowArray;
+use ReturnTypeWillChange;
 
 class TextFileIterator extends GenericIterator
 {
@@ -20,8 +21,8 @@ class TextFileIterator extends GenericIterator
     /** @var resource|closed-resource */
     protected $handle;
 
-    /** @var int */
-    protected int $current = 0;
+    /** @var array */
+    protected array $current;
 
     /** @var bool|string */
     protected string|bool $currentBuffer = "";
@@ -40,16 +41,21 @@ class TextFileIterator extends GenericIterator
         $this->eofChar = $eofChar;
         $this->handle = $handle;
 
+        $this->current = [
+            'row' => null,
+            'i' => 0,
+        ];
+
         $this->readNextLine();
     }
 
     /**
-     * @return void
+     * @return RowArray|null
      */
-    protected function readNextLine(): void
+    protected function readNextLine(): ?RowArray
     {
-        if (!$this->hasNext()) {
-            return;
+        if (!$this->valid()) {
+            return null;
         }
 
         if (empty($this->eofChar)) {
@@ -61,27 +67,63 @@ class TextFileIterator extends GenericIterator
         $this->currentBuffer = false;
 
         if (($buffer !== false) && (trim($buffer) != "")) {
-            $this->current++;
             $this->currentBuffer = $buffer;
         } else {
             $this->readNextLine();
         }
+
+        $row = $this->parseLine();
+
+        $this->current["row"] = $row;
+
+        return $row;
+
     }
 
     /**
-     * @access public
-     * @return int
+     * @return RowArray|null
      */
-    public function count(): int
+    public function parseLine(): ?RowArray
     {
-        return -1;
+        $cols = preg_split($this->fieldexpression, preg_replace("/(\r?\n?)$/", "", $this->currentBuffer), -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        $row = new RowArray();
+
+        for ($i = 0; ($i < count($this->fields)) && ($i < count($cols)); $i++) {
+            $column = $cols[$i];
+
+            if (($i >= count($this->fields) - 1) || ($i >= count($cols) - 1)) {
+                $column = preg_replace("/(\r?\n?)$/", "", $column);
+            }
+            $column = preg_replace("/^[\"'](.*)[\"']$/", "$1", $column);
+
+            $row->set($this->fields[$i], $column);
+        }
+
+        return $row;
     }
 
-    /**
-     * @access public
-     * @return bool
-     */
-    public function hasNext(): bool
+    public function key(): int
+    {
+        return $this->current["i"];
+    }
+
+    #[ReturnTypeWillChange]
+    public function current(): mixed
+    {
+        return $this->current["row"];
+    }
+
+    #[ReturnTypeWillChange]
+    public function next(): void
+    {
+        $this->current["i"]++;
+        $this->current["row"] = null;
+        $this->readNextLine();
+    }
+
+    #[ReturnTypeWillChange]
+    public function valid(): bool
     {
         if ($this->currentBuffer !== false) {
             return true;
@@ -98,44 +140,5 @@ class TextFileIterator extends GenericIterator
         }
 
         return true;
-    }
-
-    /**
-     * @inheritDoc
-     * @return Row|null
-     */
-    public function moveNext(): ?Row
-    {
-        if ($this->hasNext()) {
-            $cols = preg_split($this->fieldexpression, preg_replace("/(\r?\n?)$/", "", $this->currentBuffer), -1, PREG_SPLIT_DELIM_CAPTURE);
-
-            $row = new Row();
-            $row->enableFieldNameCaseInSensitive();
-
-            // @todo review
-            for ($i = 0; ($i < count($this->fields)) && ($i < count($cols)); $i++) {
-                $column = $cols[$i];
-
-                if (($i >= count($this->fields) - 1) || ($i >= count($cols) - 1)) {
-                    $column = preg_replace("/(\r?\n?)$/", "", $column);
-                }
-                $column = preg_replace("/^[\"'](.*)[\"']$/", "$1", $column);
-
-                $row->addField($this->fields[$i], $column);
-            }
-
-            $this->readNextLine();
-            return $row;
-        }
-
-        if ($this->handle) {
-            fclose($this->handle);
-        }
-        return null;
-    }
-
-    public function key(): int
-    {
-        return $this->current;
     }
 }
