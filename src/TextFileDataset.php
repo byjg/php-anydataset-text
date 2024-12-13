@@ -80,7 +80,7 @@ class TextFileDataset
      */
     public function withFields(array $fields): static
     {
-        $this->fields = $fields;
+        $this->fields = array_map('strtolower', $fields);
         return $this;
     }
 
@@ -126,7 +126,7 @@ class TextFileDataset
         $buffer = preg_replace("/(\r?\n?)$/", "", fgets($handle, 4096));
         $fieldList = preg_split($this->fieldexpression, $buffer, -1, PREG_SPLIT_DELIM_CAPTURE);
         return array_map(function ($value) {
-            return preg_replace("/^[\"'](.*)[\"']$/", "$1", $value);
+            return strtolower(preg_replace("/^[\"'](.*)[\"']$/", "$1", $value));
         }, $fieldList);
     }
 }

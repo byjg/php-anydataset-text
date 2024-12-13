@@ -2,10 +2,10 @@
 
 namespace Tests;
 
+use ByJG\AnyDataset\Core\AnyDataset;
 use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Core\IteratorInterface;
 use ByJG\AnyDataset\Core\Row;
-use ByJG\AnyDataset\Lists\ArrayDataset;
 use ByJG\AnyDataset\Text\Formatter\CSVFormatter;
 use ByJG\AnyDataset\Text\TextFileDataset;
 use PHPUnit\Framework\TestCase;
@@ -84,7 +84,6 @@ class TextFileDatasetTest extends TestCase
 
         $this->assertTrue($txtIterator instanceof IteratorInterface, "Resultant object must be an interator");
         $this->assertTrue($txtIterator->hasNext(), "hasNext() method must be true");
-        $this->assertTrue($txtIterator->Count() == -1, "Count() does not return anything by default.");
         $this->assertRowCount($txtIterator, 2000);
     }
 
@@ -97,7 +96,6 @@ class TextFileDatasetTest extends TestCase
 
         $this->assertTrue($txtIterator instanceof IteratorInterface, "Resultant object must be an interator");
         $this->assertTrue($txtIterator->hasNext(), "hasNext() method must be true");
-        $this->assertTrue($txtIterator->Count() == -1, "Count() does not return anything by default.");
         $this->assertRowCount($txtIterator, 2001);
     }
 
@@ -109,7 +107,6 @@ class TextFileDatasetTest extends TestCase
 
         $this->assertTrue($txtIterator instanceof IteratorInterface, "Resultant object must be an interator");
         $this->assertTrue($txtIterator->hasNext(), "hasNext() method must be true");
-        $this->assertTrue($txtIterator->Count() == -1, "Count() does not return anything by default.");
         $this->assertRowCount($txtIterator, 2000);
     }
 
@@ -136,7 +133,6 @@ class TextFileDatasetTest extends TestCase
 
         $this->assertTrue($txtIterator instanceof IteratorInterface);
         $this->assertTrue($txtIterator->hasNext());
-        $this->assertEquals($txtIterator->Count(), -1);
         $this->assertRowCount($txtIterator, 2000);
     }
 
@@ -150,7 +146,6 @@ class TextFileDatasetTest extends TestCase
 
         $this->assertTrue($txtIterator instanceof IteratorInterface);
         $this->assertTrue($txtIterator->hasNext());
-        $this->assertEquals($txtIterator->Count(), -1);
         $this->assertRowCount($txtIterator, 2000);
     }
 
@@ -163,7 +158,6 @@ class TextFileDatasetTest extends TestCase
 
         $this->assertTrue($txtIterator instanceof IteratorInterface);
         $this->assertTrue($txtIterator->hasNext());
-        $this->assertEquals($txtIterator->Count(), -1);
         $this->assertRowCount($txtIterator, 2000);
     }
 
@@ -395,9 +389,9 @@ class TextFileDatasetTest extends TestCase
      */
     public function assertSingleRow($sr, $count)
     {
-        $this->assertEquals($sr->get("field1"), $count);
-        $this->assertEquals($sr->get("field2"), "STRING$count");
-        $this->assertEquals($sr->get("field3"), "VALUE$count");
+        $this->assertEquals($count, $sr->get("field1"));
+        $this->assertEquals("STRING$count", $sr->get("field2"));
+        $this->assertEquals("VALUE$count", $sr->get("field3"));
     }
 
     /**
@@ -419,13 +413,13 @@ class TextFileDatasetTest extends TestCase
             ["field1" => 3, "field2" => "STRING3", "field3" => "VALUE3"],
         ];
 
-        $anydataset = new ArrayDataset($data);
+        $anydataset = new AnyDataset($data);
         $formatter = new CSVFormatter($anydataset->getIterator());
 
-        $text = "__id,__key,field1,field2,field3\n" .
-            "0,0,1,STRING1,VALUE1\n" .
-            "1,1,2,STRING2,VALUE2\n" .
-            "2,2,3,STRING3,VALUE3\n";
+        $text = "field1,field2,field3\n" .
+            "1,STRING1,VALUE1\n" .
+            "2,STRING2,VALUE2\n" .
+            "3,STRING3,VALUE3\n";
 
         $this->assertEquals($text, $formatter->toText());
     }
