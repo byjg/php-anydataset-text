@@ -120,17 +120,20 @@ class FixedTextFileIterator extends GenericIterator
         return $fieldList;
     }
 
+    #[\Override]
     public function key(): int
     {
         return $this->current["i"];
     }
 
+    #[\Override]
     #[ReturnTypeWillChange]
     public function current(): ?RowInterface
     {
         return $this->current["row"];
     }
 
+    #[\Override]
     #[ReturnTypeWillChange]
     public function next(): void
     {
@@ -139,6 +142,7 @@ class FixedTextFileIterator extends GenericIterator
         $this->readNextLine();
     }
 
+    #[\Override]
     #[ReturnTypeWillChange]
     public function valid(): bool
     {
@@ -146,10 +150,16 @@ class FixedTextFileIterator extends GenericIterator
             return false;
         }
 
+        // If there is a current row
+        if (isset($this->current["row"]) && ($this->current["row"] !== null)) {
+            return true;
+        }
+
+        // If reading next line is possible
         if (feof($this->handle)) {
             fclose($this->handle);
             $this->handle = null;
-            return true;
+            return false;
         }
 
         return true;

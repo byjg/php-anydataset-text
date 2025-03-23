@@ -103,17 +103,20 @@ class TextFileIterator extends GenericIterator
         return $row;
     }
 
+    #[\Override]
     public function key(): int
     {
         return $this->current["i"];
     }
 
+    #[\Override]
     #[ReturnTypeWillChange]
     public function current(): mixed
     {
         return $this->current["row"];
     }
 
+    #[\Override]
     #[ReturnTypeWillChange]
     public function next(): void
     {
@@ -122,6 +125,7 @@ class TextFileIterator extends GenericIterator
         $this->readNextLine();
     }
 
+    #[\Override]
     #[ReturnTypeWillChange]
     public function valid(): bool
     {

@@ -22,8 +22,13 @@ class TextFileDatasetTest extends TestCase
 
     const REMOTEURL = "https://opensource-test-resources.web.app/%s";
 
+    #[\Override]
     public static function setUpBeforeClass(): void
     {
+        if (!file_exists("tests/tmp")) {
+            mkdir("tests/tmp");
+        }
+
         self::$fileName_Unix = sys_get_temp_dir() . "/textfiletest-unix.csv";
         self::$fileName_Windows = sys_get_temp_dir() . "/textfiletest-windows.csv";
         self::$fileName_MacClassic = sys_get_temp_dir() . "/textfiletest-mac.csv";
@@ -66,6 +71,7 @@ class TextFileDatasetTest extends TestCase
         }
     }
 
+    #[\Override]
     public static function tearDownAfterClass(): void
     {
         unlink(self::$fileName_Unix);
@@ -82,8 +88,8 @@ class TextFileDatasetTest extends TestCase
             ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
-        $this->assertTrue($txtIterator instanceof IteratorInterface, "Resultant object must be an interator");
-        $this->assertTrue($txtIterator->hasNext(), "hasNext() method must be true");
+        $this->assertInstanceOf(IteratorInterface::class, $txtIterator, "Resultant object must be an interator");
+        $this->assertTrue($txtIterator->valid(), "valid() method must be true");
         $this->assertRowCount($txtIterator, 2000);
     }
 
@@ -94,8 +100,8 @@ class TextFileDatasetTest extends TestCase
             ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
-        $this->assertTrue($txtIterator instanceof IteratorInterface, "Resultant object must be an interator");
-        $this->assertTrue($txtIterator->hasNext(), "hasNext() method must be true");
+        $this->assertInstanceOf(IteratorInterface::class, $txtIterator, "Resultant object must be an interator");
+        $this->assertTrue($txtIterator->valid(), "valid() method must be true");
         $this->assertRowCount($txtIterator, 2001);
     }
 
@@ -105,8 +111,8 @@ class TextFileDatasetTest extends TestCase
             ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
-        $this->assertTrue($txtIterator instanceof IteratorInterface, "Resultant object must be an interator");
-        $this->assertTrue($txtIterator->hasNext(), "hasNext() method must be true");
+        $this->assertInstanceOf(IteratorInterface::class, $txtIterator, "Resultant object must be an interator");
+        $this->assertTrue($txtIterator->valid(), "valid() method must be true");
         $this->assertRowCount($txtIterator, 2000);
     }
 
@@ -116,7 +122,7 @@ class TextFileDatasetTest extends TestCase
             ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
-        $line = $txtIterator->moveNext();
+        $line = $txtIterator->current();
         $this->assertEquals([
             "id" => 1,
             "name" => "STRING1",
@@ -131,8 +137,8 @@ class TextFileDatasetTest extends TestCase
             ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
-        $this->assertTrue($txtIterator instanceof IteratorInterface);
-        $this->assertTrue($txtIterator->hasNext());
+        $this->assertInstanceOf(IteratorInterface::class, $txtIterator);
+        $this->assertTrue($txtIterator->valid());
         $this->assertRowCount($txtIterator, 2000);
     }
 
@@ -144,8 +150,8 @@ class TextFileDatasetTest extends TestCase
             ->withEofChar("\r");
         $txtIterator = $txtFile->getIterator();
 
-        $this->assertTrue($txtIterator instanceof IteratorInterface);
-        $this->assertTrue($txtIterator->hasNext());
+        $this->assertInstanceOf(IteratorInterface::class, $txtIterator);
+        $this->assertTrue($txtIterator->valid());
         $this->assertRowCount($txtIterator, 2000);
     }
 
@@ -156,8 +162,8 @@ class TextFileDatasetTest extends TestCase
             ->withFieldParser(TextFileDataset::CSVFILE);
         $txtIterator = $txtFile->getIterator();
 
-        $this->assertTrue($txtIterator instanceof IteratorInterface);
-        $this->assertTrue($txtIterator->hasNext());
+        $this->assertInstanceOf(IteratorInterface::class, $txtIterator);
+        $this->assertTrue($txtIterator->valid());
         $this->assertRowCount($txtIterator, 2000);
     }
 

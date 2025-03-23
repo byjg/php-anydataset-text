@@ -107,6 +107,7 @@ class FixedSizeColumnFormatter extends BaseFormatter
      * @return string
      * @throws MalformedException
      */
+    #[\Override]
     public function raw(): string
     {
         if ($this->object instanceof GenericIterator) {
@@ -115,15 +116,14 @@ class FixedSizeColumnFormatter extends BaseFormatter
         return $this->rowRaw($this->object->toArray());
     }
 
-
     /**
      * @throws MalformedException
      */
+    #[\Override]
     public function toText(): string
     {
         return $this->raw();
     }
-
 
 	/**
 	 * 
