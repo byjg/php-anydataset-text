@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # FixedTextFileDataset
 
 The `FixedTextFileDataset` class provides functionality to work with fixed-width text files, where each field is defined by its position and length in the line.
@@ -15,7 +19,7 @@ $fieldDefinition = [
     new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('code', 11, 4, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::NUMBER),
 ];
 
-$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset($file)
+$dataset = \ByJG\AnyDataset\Text\FixedTextFileDataset::getInstance($file)
     ->withFieldDefinition($fieldDefinition);
 
 $iterator = $dataset->getIterator();
@@ -84,12 +88,12 @@ new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
 `FixedTextFileDataset` supports reading files from remote HTTP or HTTPS URLs:
 
 ```php
-$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset("https://example.com/data.txt")
+$dataset = \ByJG\AnyDataset\Text\FixedTextFileDataset::getInstance("https://example.com/data.txt")
     ->withFieldDefinition($fieldDefinition);
 ```
 
 ## Methods
 
-- `__construct($file)` - Creates a new instance with the specified file
-- `withFieldDefinition(array $fieldDefinition)` - Sets the field definition
+- `getInstance($file)` - Static factory method that creates a new instance with the specified file
+- `withFieldDefinition(array $fieldDefinition)` - Sets the field definition and returns the instance for method chaining
 - `getIterator()` - Returns an iterator for the dataset 

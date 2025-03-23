@@ -1,3 +1,7 @@
+---
+sidebar_position: 3
+---
+
 # FixedTextDefinition
 
 The `FixedTextDefinition` class is used to define the structure of fixed-width text files. It specifies the name, position, length, and type of each field in the file.
@@ -20,9 +24,9 @@ The `FixedTextDefinition` constructor accepts the following parameters:
 
 ```php
 $definition = new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
-    $fieldName,      // The field name
-    $startPos,       // The start position of this field in the row (0-based)
-    $length,         // The number of characters of the field content
+    $fieldName,      // The field name (string)
+    $startPos,       // The start position of this field in the row (int, 0-based)
+    $length,         // The number of characters of the field content (int)
     $type,           // (optional) The type of the field content: TextTypeEnum::STRING (default) or TextTypeEnum::NUMBER
     $requiredValue,  // (optional) An array of valid values. E.g. ['Y', 'N']
     $subTypes        // (optional) An associative array of FixedTextDefinition for conditional field parsing
@@ -74,11 +78,13 @@ $definition = new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
 );
 ```
 
-## Methods
+## Properties
 
-- `getFieldName()` - Gets the field name
-- `getStartPos()` - Gets the start position
-- `getLength()` - Gets the field length
-- `getType()` - Gets the field type
-- `getRequiredValue()` - Gets the array of required values
-- `getSubType($value)` - Gets the sub-type definition for the specified value 
+All properties of the `FixedTextDefinition` class are public and can be accessed directly:
+
+- `fieldName` - The field name (string)
+- `startPos` - The start position (int)
+- `length` - The field length (int)
+- `type` - The field type (TextTypeEnum)
+- `requiredValue` - The array of required values (array|null)
+- `subTypes` - The sub-type definitions (array|null) 

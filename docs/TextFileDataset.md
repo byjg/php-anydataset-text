@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # TextFileDataset
 
 The `TextFileDataset` class provides functionality to work with delimited text files, such as CSV files. It allows you to parse and iterate through text files where fields are separated by delimiters.
@@ -46,6 +50,16 @@ $dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
     ->withFieldParser(\ByJG\AnyDataset\Text\TextFileDataset::CSVFILE);
 ```
 
+## End of File Character
+
+You can specify a custom end-of-line character if your file uses a non-standard line terminator:
+
+```php
+$dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
+    ->withFieldParser(\ByJG\AnyDataset\Text\TextFileDataset::CSVFILE)
+    ->withEofChar("\r");
+```
+
 ## Remote Files
 
 `TextFileDataset` supports reading files from remote HTTP or HTTPS URLs:
@@ -57,7 +71,8 @@ $dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance("https://example.c
 
 ## Methods
 
-- `getInstance($file)` - Creates a new instance with the specified file
-- `withFields(array $fields)` - Sets the field names
-- `withFieldParser($pattern)` - Sets the field parser pattern
+- `getInstance(string $source)` - Static factory method that creates a new instance with the specified file
+- `withFields(array $fields)` - Sets the field names and returns the instance for method chaining
+- `withFieldParser(string $pattern)` - Sets the field parser pattern and returns the instance for method chaining
+- `withEofChar(string $char)` - Sets the end-of-line character and returns the instance for method chaining
 - `getIterator()` - Returns an iterator for the dataset 

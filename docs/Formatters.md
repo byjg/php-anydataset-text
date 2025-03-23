@@ -1,3 +1,7 @@
+---
+sidebar_position: 4
+---
+
 # Formatters
 
 Formatters are used to output dataset content in specific formats. The AnyDataset-Text package provides two formatters:
@@ -80,4 +84,28 @@ $formatter->setPadString(' ');
 
 // Get the formatted text
 $formattedContent = $formatter->toText();
-``` 
+```
+
+### Methods
+
+#### CSVFormatter
+
+- `__construct($anydataset, $delimiter = ",", $quote = '"', $applyQuote = 1)` - Constructor with customizable options
+- `toText()` - Returns the formatted text as a string
+- `setDelimiter($value)` - Sets the delimiter character
+- `getDelimiter()` - Gets the delimiter character
+- `setQuote($value)` - Sets the quote character
+- `getQuote()` - Gets the quote character
+- `setApplyQuote($value)` - Sets the quoting behavior
+- `getApplyQuote()` - Gets the quoting behavior
+- `setOutputHeader($outputHeader)` - Sets whether to output the header row
+- `getOutputHeader()` - Gets whether to output the header row
+
+#### FixedSizeColumnFormatter
+
+- `__construct(GenericIterator|Row $anydataset, array $fieldDefinition)` - Constructor with required dataset and field definitions
+- `toText()` - Returns the formatted text as a string
+- `setPadNumber(string $padNumber)` - Sets the padding character for number fields
+- `getPadNumber()` - Gets the padding character for number fields
+- `setPadString(string $padString)` - Sets the padding character for string fields
+- `getPadString()` - Gets the padding character for string fields 
