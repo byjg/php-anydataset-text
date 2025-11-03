@@ -15,7 +15,7 @@ The `CSVFormatter` class allows you to output dataset content as a CSV file with
 
 ### Basic Usage
 
-```php
+```php title="Using CSVFormatter"
 <?php
 $iterator = $anydataset->getIterator();
 $formatter = new \ByJG\AnyDataset\Text\Formatter\CSVFormatter($iterator);
@@ -58,7 +58,7 @@ The `FixedSizeColumnFormatter` class allows you to output dataset content with f
 
 ### Basic Usage
 
-```php
+```php title="Using FixedSizeColumnFormatter"
 <?php
 $fieldDefinition = [
     new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 0, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::NUMBER),

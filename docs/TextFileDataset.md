@@ -8,10 +8,10 @@ The `TextFileDataset` class provides functionality to work with delimited text f
 
 ## Basic Usage
 
-```php
+```php title="example.php"
 <?php
 $file = "example.csv";
-    
+
 $dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
     ->withFields(["name", "surname"])
     ->withFieldParser(\ByJG\AnyDataset\Text\TextFileDataset::CSVFILE);
@@ -27,7 +27,7 @@ foreach ($iterator as $row) {
 
 The `TextFileDataset` class provides several pre-defined field parsers:
 
-- `TextFileDataset::CSVFILE` - A generic file definition that accepts both `,` and `;` as delimiters
+- `TextFileDataset::CSVFILE` - A generic file definition that accepts `|`, `,` and `;` as delimiters
 - `TextFileDataset::CSVFILE_COMMA` - The standard CSV file format that accepts only `,` as delimiter
 - `TextFileDataset::CSVFILE_SEMICOLON` - A CSV variation that accepts only `;` as delimiter
 
@@ -35,7 +35,9 @@ The `TextFileDataset` class provides several pre-defined field parsers:
 
 You can specify field names in two ways:
 
-1. Explicitly define field names using the `withFields()` method:
+### 1. Explicitly define field names
+
+Use the `withFields()` method to specify field names:
 
 ```php
 $dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
@@ -43,7 +45,9 @@ $dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
     ->withFieldParser(\ByJG\AnyDataset\Text\TextFileDataset::CSVFILE);
 ```
 
-2. Use the first line of the file as field names by omitting the `withFields()` method:
+### 2. Use first line as header
+
+Omit the `withFields()` method to use the first line of the file as field names:
 
 ```php
 $dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)

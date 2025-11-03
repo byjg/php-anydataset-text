@@ -32,8 +32,8 @@ See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 This type of files uses a delimiter to define each field. The most common format is CSV but you can use your own based on a regular expression.
 The class TextFileDataset has three constants with pre-defined formats:
 
-- TextFileDataset::CSVFILE - A generic file definition. It accepts both `,` and `;` as delimiter. 
-- TextFileDataset::CSVFILE_COMMA - The CSV file. It accepts only `,` as delimiter. 
+- TextFileDataset::CSVFILE - A generic file definition. It accepts `|`, `,` and `;` as delimiter.
+- TextFileDataset::CSVFILE_COMMA - The CSV file. It accepts only `,` as delimiter.
 - TextFileDataset::CSVFILE_SEMICOLON - A CSV variation. It accepts only `;` as delimiter. 
 
 example1.csv

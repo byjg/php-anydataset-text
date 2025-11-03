@@ -8,7 +8,7 @@ The `FixedTextDefinition` class is used to define the structure of fixed-width t
 
 ## Basic Usage
 
-```php
+```php title="Creating a field definition"
 <?php
 $definition = new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
     'fieldName',  // The field name

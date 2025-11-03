@@ -8,7 +8,7 @@ The `FixedTextFileDataset` class provides functionality to work with fixed-width
 
 ## Basic Usage
 
-```php
+```php title="example.php"
 <?php
 $file = "data.txt";
 
