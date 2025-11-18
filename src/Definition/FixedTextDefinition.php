@@ -36,7 +36,7 @@ class FixedTextDefinition
      * @param ?array $requiredValue
      * @param array|null $subTypes
      */
-    public function __construct(string $fieldName, int $startPos, int $length, TextTypeEnum $type = TextTypeEnum::STRING, ?array $requiredValue = null, array $subTypes = null)
+    public function __construct(string $fieldName, int $startPos, int $length, TextTypeEnum $type = TextTypeEnum::STRING, ?array $requiredValue = null, ?array $subTypes = null)
     {
         $this->fieldName = $fieldName;
         $this->startPos = $startPos;
