@@ -20,7 +20,7 @@ class FixedTextFileIterator extends GenericIterator
     protected array $fields;
 
     /**
-     * @var resource|closed-resource
+     * @var resource|closed-resource|null
      */
     protected $handle;
 
@@ -49,6 +49,10 @@ class FixedTextFileIterator extends GenericIterator
     protected function readNextLine(): ?RowInterface
     {
         if (!$this->valid()) {
+            return null;
+        }
+
+        if (!is_resource($this->handle)) {
             return null;
         }
 
@@ -100,11 +104,12 @@ class FixedTextFileIterator extends GenericIterator
             }
 
             if (is_array($fieldDef->subTypes)) {
-                if (!isset($fieldDef->subTypes[$fieldList[$fieldDef->fieldName]])) {
+                $key = (string)$fieldList[$fieldDef->fieldName];
+                if (!isset($fieldDef->subTypes[$key])) {
                     throw new IteratorException("Subtype does not match");
                 }
 
-                $value = $fieldDef->subTypes[$fieldList[$fieldDef->fieldName]];
+                $value = $fieldDef->subTypes[$key];
 
                 if (!is_array($value)) {
                     throw new \InvalidArgumentException("Subtype needs to be an array");
@@ -146,7 +151,7 @@ class FixedTextFileIterator extends GenericIterator
     #[ReturnTypeWillChange]
     public function valid(): bool
     {
-        if (!$this->handle) {
+        if (!$this->handle || !is_resource($this->handle)) {
             return false;
         }
 

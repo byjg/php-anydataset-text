@@ -12,13 +12,13 @@ class TextFileIterator extends GenericIterator
     /** @var array */
     protected array $fields;
 
-    /** @var string */
+    /** @var non-empty-string */
     protected string $fieldexpression;
 
     /** @var string */
     protected string $eofChar;
 
-    /** @var resource|closed-resource */
+    /** @var resource|closed-resource|null */
     protected $handle;
 
     /** @var array */
@@ -31,8 +31,8 @@ class TextFileIterator extends GenericIterator
      * @access public
      * @param resource|closed-resource $handle
      * @param array $fields
+     * @param non-empty-string $fieldExpression
      * @param string $eofChar
-     * @param string $fieldExpression
      */
     public function __construct($handle, array $fields, string $fieldExpression, string $eofChar)
     {
@@ -58,12 +58,16 @@ class TextFileIterator extends GenericIterator
             return null;
         }
 
+        if (!is_resource($this->handle)) {
+            return null;
+        }
+
         if (empty($this->eofChar)) {
             $buffer = fgets($this->handle, 8192);
         } else {
             $buffer = stream_get_line($this->handle, 8192, $this->eofChar);
         }
-        
+
         $this->currentBuffer = false;
 
         if (($buffer !== false) && (trim($buffer) != "")) {
@@ -85,7 +89,19 @@ class TextFileIterator extends GenericIterator
      */
     public function parseLine(): ?RowArray
     {
-        $cols = preg_split($this->fieldexpression, preg_replace("/(\r?\n?)$/", "", $this->currentBuffer), -1, PREG_SPLIT_DELIM_CAPTURE);
+        if ($this->currentBuffer === false || !is_string($this->currentBuffer)) {
+            return new RowArray();
+        }
+
+        $cleaned = preg_replace("/(\r?\n?)$/", "", $this->currentBuffer);
+        if ($cleaned === null) {
+            return new RowArray();
+        }
+
+        $cols = preg_split($this->fieldexpression, $cleaned, -1, PREG_SPLIT_DELIM_CAPTURE);
+        if ($cols === false) {
+            return new RowArray();
+        }
 
         $row = new RowArray();
 
@@ -93,9 +109,11 @@ class TextFileIterator extends GenericIterator
             $column = $cols[$i];
 
             if (($i >= count($this->fields) - 1) || ($i >= count($cols) - 1)) {
-                $column = preg_replace("/(\r?\n?)$/", "", $column);
+                $cleaned = preg_replace("/(\r?\n?)$/", "", $column);
+                $column = $cleaned ?? $column;
             }
-            $column = preg_replace("/^[\"'](.*)[\"']$/", "$1", $column);
+            $cleaned = preg_replace("/^[\"'](.*)[\"']$/", "$1", $column);
+            $column = $cleaned ?? $column;
 
             $row->set($this->fields[$i], $column);
         }
@@ -133,7 +151,7 @@ class TextFileIterator extends GenericIterator
             return true;
         }
 
-        if (!$this->handle) {
+        if (!$this->handle || !is_resource($this->handle)) {
             return false;
         }
 

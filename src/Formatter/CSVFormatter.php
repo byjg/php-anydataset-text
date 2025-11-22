@@ -75,13 +75,19 @@ class CSVFormatter extends BaseFormatter
         $line = "";
         $first = true;
         foreach ($row as $value) {
-            $value = str_replace($this->quote, $this->quote . $this->quote, $value);
-            $quoteStr = 
+            if (is_array($value)) {
+                $strValue = json_encode($value);
+                $strValue = ($strValue === false) ? '[]' : $strValue;
+            } else {
+                $strValue = (string)$value;
+            }
+            $strValue = str_replace($this->quote, $this->quote . $this->quote, $strValue);
+            $quoteStr =
                 ($this->getApplyQuote() == self::APPLY_QUOTE_ALWAYS)
-                || ($this->getApplyQuote() == self::APPLY_QUOTE_WHEN_REQUIRED && (!is_numeric($value) && (strpos($value, $this->quote) !== false || strpos($value, $this->delimiter) !== false)))
+                || ($this->getApplyQuote() == self::APPLY_QUOTE_WHEN_REQUIRED && (!is_numeric($value) && (strpos($strValue, $this->quote) !== false || strpos($strValue, $this->delimiter) !== false)))
                 || ($this->getApplyQuote() == self::APPLY_QUOTE_ALL_STRINGS && !is_numeric($value))
                 ? $this->quote : "";
-            $line .= ($first ? "" : $this->delimiter) . $quoteStr . $value . $quoteStr;
+            $line .= ($first ? "" : $this->delimiter) . $quoteStr . $strValue . $quoteStr;
             $first = false;
         }
         return $line . "\n";

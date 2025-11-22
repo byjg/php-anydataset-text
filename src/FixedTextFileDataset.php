@@ -101,6 +101,10 @@ class FixedTextFileDataset
         $pat = "/(http|ftp|https):\/\/([\w+|\.]+)/i";
         $urlParts = preg_split($pat, $this->source, -1, PREG_SPLIT_DELIM_CAPTURE);
 
+        if ($urlParts === false || !isset($urlParts[2], $urlParts[4])) {
+            throw new DatasetException("Invalid URL format");
+        }
+
         $handle = fsockopen($urlParts[2], 80, $errno, $errstr, 30);
         if (!$handle) {
             throw new DatasetException("TextFileDataset Socket error: $errstr ($errno)");
@@ -117,6 +121,10 @@ class FixedTextFileDataset
             throw new DatasetException($ex->getMessage());
         }
 
+        if ($this->fieldDefinition === null) {
+            throw new InvalidArgumentException("Field definition is empty");
+        }
+
         return new FixedTextFileIterator($handle, $this->fieldDefinition);
     }
 
@@ -129,6 +137,10 @@ class FixedTextFileDataset
         $handle = fopen($this->source, "r");
         if (!$handle) {
             throw new DatasetException("TextFileDataset File open error");
+        }
+
+        if ($this->fieldDefinition === null) {
+            throw new InvalidArgumentException("Field definition is empty");
         }
 
         return new FixedTextFileIterator($handle, $this->fieldDefinition);

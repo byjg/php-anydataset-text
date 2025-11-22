@@ -20,7 +20,7 @@ class TextFileDataset
     /** @var array */
     protected array $fields;
 
-    /** @var string */
+    /** @var non-empty-string */
     protected string $fieldexpression;
 
     /** @var string */
@@ -65,7 +65,7 @@ class TextFileDataset
     }
 
     /**
-     * @param string $regexParser
+     * @param non-empty-string $regexParser
      * @return static
      */
     public function withFieldParser(string $regexParser): static
@@ -123,10 +123,24 @@ class TextFileDataset
      */
     protected function getFieldDefinitionFromFile($handle): array
     {
-        $buffer = preg_replace("/(\r?\n?)$/", "", fgets($handle, 4096));
+        $line = fgets($handle, 4096);
+        if ($line === false) {
+            return [];
+        }
+
+        $buffer = preg_replace("/(\r?\n?)$/", "", $line);
+        if ($buffer === null) {
+            return [];
+        }
+
         $fieldList = preg_split($this->fieldexpression, $buffer, -1, PREG_SPLIT_DELIM_CAPTURE);
+        if ($fieldList === false) {
+            return [];
+        }
+
         return array_map(function ($value) {
-            return strtolower(preg_replace("/^[\"'](.*)[\"']$/", "$1", $value));
+            $cleaned = preg_replace("/^[\"'](.*)[\"']$/", "$1", $value);
+            return strtolower($cleaned ?? $value);
         }, $fieldList);
     }
 }
