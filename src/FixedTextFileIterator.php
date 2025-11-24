@@ -4,9 +4,11 @@ namespace ByJG\AnyDataset\Text;
 
 use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\GenericIterator;
-use ByJG\AnyDataset\Core\Row;
+use ByJG\AnyDataset\Core\RowArray;
+use ByJG\AnyDataset\Core\RowInterface;
 use ByJG\AnyDataset\Text\Definition\FixedTextDefinition;
 use ByJG\AnyDataset\Text\Definition\TextTypeEnum;
+use ReturnTypeWillChange;
 
 class FixedTextFileIterator extends GenericIterator
 {
@@ -18,14 +20,14 @@ class FixedTextFileIterator extends GenericIterator
     protected array $fields;
 
     /**
-     * @var resource|closed-resource
+     * @var resource|closed-resource|null
      */
     protected $handle;
 
     /**
-     * @var int
+     * @var array
      */
-    protected int $current = 0;
+    private array $current;
 
     /**
      *
@@ -36,58 +38,36 @@ class FixedTextFileIterator extends GenericIterator
     {
         $this->fields = $fieldDefinition;
         $this->handle = $handle;
-        $this->current = 0;
+        $this->current = [
+            'row' => null,
+            'i' => 0,
+        ];
+
+        $this->readNextLine();
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function count(): int
+    protected function readNextLine(): ?RowInterface
     {
-        return -1;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function hasNext(): bool
-    {
-        if (!$this->handle) {
-            return false;
+        if (!$this->valid()) {
+            return null;
         }
 
-        if (feof($this->handle)) {
-            fclose($this->handle);
-
-            return false;
+        if (!is_resource($this->handle)) {
+            return null;
         }
 
-        return true;
-    }
+        $buffer = fgets($this->handle, 8192);
 
-
-    /**
-     * @inheritDoc
-     */
-    public function moveNext(): ?Row
-    {
-        if ($this->hasNext()) {
-            $buffer = fgets($this->handle, 8192);
-
-            if ($buffer == "") {
-                return new Row();
-            }
-
+        if (!empty($buffer)) {
             $retFields = $this->processBuffer($buffer, $this->fields);
-
-            $this->current++;
-            return new Row($retFields);
+            $row = new RowArray($retFields);
+        } else {
+            $row = new RowArray();
         }
 
-        if ($this->handle) {
-            fclose($this->handle);
-        }
-        return null;
+        $this->current["row"] = $row;
+
+        return $row;
     }
 
     /**
@@ -124,11 +104,12 @@ class FixedTextFileIterator extends GenericIterator
             }
 
             if (is_array($fieldDef->subTypes)) {
-                if (!isset($fieldDef->subTypes[$fieldList[$fieldDef->fieldName]])) {
+                $key = (string)$fieldList[$fieldDef->fieldName];
+                if (!isset($fieldDef->subTypes[$key])) {
                     throw new IteratorException("Subtype does not match");
                 }
 
-                $value = $fieldDef->subTypes[$fieldList[$fieldDef->fieldName]];
+                $value = $fieldDef->subTypes[$key];
 
                 if (!is_array($value)) {
                     throw new \InvalidArgumentException("Subtype needs to be an array");
@@ -144,8 +125,48 @@ class FixedTextFileIterator extends GenericIterator
         return $fieldList;
     }
 
+    #[\Override]
     public function key(): int
     {
-        return $this->current;
+        return $this->current["i"];
+    }
+
+    #[\Override]
+    #[ReturnTypeWillChange]
+    public function current(): ?RowInterface
+    {
+        return $this->current["row"];
+    }
+
+    #[\Override]
+    #[ReturnTypeWillChange]
+    public function next(): void
+    {
+        $this->current["i"]++;
+        $this->current["row"] = null;
+        $this->readNextLine();
+    }
+
+    #[\Override]
+    #[ReturnTypeWillChange]
+    public function valid(): bool
+    {
+        if (!$this->handle || !is_resource($this->handle)) {
+            return false;
+        }
+
+        // If there is a current row
+        if (isset($this->current["row"]) && ($this->current["row"] !== null)) {
+            return true;
+        }
+
+        // If reading next line is possible
+        if (feof($this->handle)) {
+            fclose($this->handle);
+            $this->handle = null;
+            return false;
+        }
+
+        return true;
     }
 }

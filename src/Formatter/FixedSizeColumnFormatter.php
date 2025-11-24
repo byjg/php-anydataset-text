@@ -60,7 +60,7 @@ class FixedSizeColumnFormatter extends BaseFormatter
      * @param string $eof
      * @return string
      */
-    protected function rowRaw(array $row, FixedTextDefinition|array $fieldDefinition = null, string $eof = "\n"): string
+    protected function rowRaw(array $row, FixedTextDefinition|array|null $fieldDefinition = null, string $eof = "\n"): string
     {
         if (empty($fieldDefinition)) {
             $fieldDefinition = $this->fieldDefinition;
@@ -107,6 +107,7 @@ class FixedSizeColumnFormatter extends BaseFormatter
      * @return string
      * @throws MalformedException
      */
+    #[\Override]
     public function raw(): string
     {
         if ($this->object instanceof GenericIterator) {
@@ -115,15 +116,14 @@ class FixedSizeColumnFormatter extends BaseFormatter
         return $this->rowRaw($this->object->toArray());
     }
 
-
     /**
      * @throws MalformedException
      */
+    #[\Override]
     public function toText(): string
     {
         return $this->raw();
     }
-
 
 	/**
 	 * 
