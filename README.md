@@ -1,10 +1,4 @@
----
-tags: [php, anydataset, text-manipulation]
----
-
 # Text File Abstraction Dataset
-
-Text file abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP.
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-%23ea4aaa?logo=githubsponsors&logoColor=white&labelColor=0d1117)](https://github.com/sponsors/byjg)
 [![Build Status](https://github.com/byjg/php-anydataset-text/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/php-anydataset-text/actions/workflows/phpunit.yml)
@@ -12,6 +6,8 @@ Text file abstraction dataset. Anydataset is an agnostic data source abstraction
 [![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/php-anydataset-text/)
 [![GitHub license](https://img.shields.io/github/license/byjg/php-anydataset-text.svg)](https://opensource.byjg.com/opensource/licensing.html)
 [![GitHub release](https://img.shields.io/github/release/byjg/php-anydataset-text.svg)](https://github.com/byjg/php-anydataset-text/releases/)
+
+Text file abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP.
 
 See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
@@ -25,10 +21,10 @@ See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
 ## Documentation
 
-- [TextFileDataset](TextFileDataset) - Work with delimited text files (CSV, etc.)
-- [FixedTextFileDataset](FixedTextFileDataset) - Work with fixed-width text files
-- [FixedTextDefinition](FixedTextDefinition) - Define the structure of fixed-width text files
-- [Formatters](Formatters) - Output dataset content in specific formats
+- [TextFileDataset](docs/TextFileDataset.md) - Work with delimited text files (CSV, etc.)
+- [FixedTextFileDataset](docs/FixedTextFileDataset.md) - Work with fixed-width text files
+- [FixedTextDefinition](docs/FixedTextDefinition.md) - Define the structure of fixed-width text files
+- [Formatters](docs/Formatters.md) - Output dataset content in specific formats
 
 ## Quick Examples
 
