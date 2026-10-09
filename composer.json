@@ -18,17 +18,15 @@
     "byjg/anydataset": "^7.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^12.5"
+    "phpunit/phpunit": "^12.5",
+    "psalm/phar": "^6.16"
   },
   "provide": {
     "byjg/anydataset-implementation": "1.0"
   },
   "scripts": {
     "test": "vendor/bin/phpunit",
-    "psalm": [
-      "@composer --working-dir=tools/psalm update --no-interaction",
-      "tools/psalm/vendor/bin/psalm"
-    ]
+    "psalm": "vendor/bin/psalm.phar"
   },
   "license": "MIT"
 }
