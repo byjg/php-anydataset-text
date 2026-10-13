@@ -94,7 +94,7 @@ class FixedTextFileIterator extends GenericIterator
                 );
             }
 
-            if (empty($fieldDef->subTypes) && $fieldDef->type == TextTypeEnum::NUMBER) {
+            if (empty($fieldDef->subTypes) && $fieldDef->type == TextTypeEnum::Number) {
                 /**
                  * This will convert the string to number. 
                  */

@@ -9,9 +9,10 @@ Text file abstraction dataset. Anydataset is an agnostic data source abstraction
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-%23ea4aaa?logo=githubsponsors&logoColor=white&labelColor=0d1117)](https://github.com/sponsors/byjg)
 [![Build Status](https://github.com/byjg/php-anydataset-text/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/php-anydataset-text/actions/workflows/phpunit.yml)
-[![Opensource ByJG](https://img.shields.io/badge/opensource-byjg-success.svg)](http://opensource.byjg.com)
+[![Opensource ByJG](https://img.shields.io/badge/opensource-byjg-success.svg)](https://opensource.byjg.com)
+[![Install MCP Server](https://img.shields.io/badge/Install-MCP_Server-8A2BE2?logo=modelcontextprotocol&logoColor=white)](https://opensource.byjg.com/docs/ai/mcpserver-byjg-docs/)
 [![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/php-anydataset-text/)
-[![GitHub license](https://img.shields.io/github/license/byjg/php-anydataset-text.svg)](https://opensource.byjg.com/opensource/licensing.html)
+[![GitHub license](https://img.shields.io/github/license/byjg/php-anydataset-text.svg)](https://opensource.byjg.com/license/)
 [![GitHub release](https://img.shields.io/github/release/byjg/php-anydataset-text.svg)](https://github.com/byjg/php-anydataset-text/releases/)
 
 See more about Anydataset [here](https://opensource.byjg.com/anydataset).
@@ -26,10 +27,10 @@ See more about Anydataset [here](https://opensource.byjg.com/anydataset).
 
 ## Documentation
 
-- [TextFileDataset](docs/TextFileDataset.md) - Work with delimited text files (CSV, etc.)
-- [FixedTextFileDataset](docs/FixedTextFileDataset.md) - Work with fixed-width text files
-- [FixedTextDefinition](docs/FixedTextDefinition.md) - Define the structure of fixed-width text files
-- [Formatters](docs/Formatters.md) - Output dataset content in specific formats
+- [TextFileDataset](docs/text-file-dataset.md) - Work with delimited text files (CSV, etc.)
+- [FixedTextFileDataset](docs/fixed-text-file-dataset.md) - Work with fixed-width text files
+- [FixedTextDefinition](docs/fixed-text-definition.md) - Define the structure of fixed-width text files
+- [Formatters](docs/formatters.md) - Output dataset content in specific formats
 
 ## Quick Examples
 
@@ -101,7 +102,7 @@ $definition = new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
     $fieldName,      # The field name
     $startPos,       # The start position of this field in the row
     $length,         # The number of characters of the field content
-    $type,           # (optional) The type of the field content. TextTypeEnum::STRING (default) or TextTypeEnum::NUMBER
+    $type,           # (optional) The type of the field content. TextTypeEnum::String (default) or TextTypeEnum::Number
     $requiredValue,  # (optional) an array of valid values. E.g. ['Y', 'N']
     $subTypes        # (optional) An associative array of FixedTextDefinition. If the value matches with the key of the associative array, 
                      # then a sub set of FixedTextDefinition is processed. e.g.
@@ -124,10 +125,10 @@ $file = "".
     "002GILBERTS1621\n";
 
 $fieldDefinition = [
-    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 0, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::NUMBER),
-    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('name', 3, 7, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
-    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('enable', 10, 1, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING, ['S', 'N']), // Required values --> S or N
-    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('code', 11, 4, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::NUMBER),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 0, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::Number),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('name', 3, 7, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('enable', 10, 1, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String, ['S', 'N']), // Required values --> S or N
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('code', 11, 4, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::Number),
 ];
 
 $dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset($file)
@@ -151,21 +152,21 @@ $file = "".
     "002GILBERTS1621\n";
 
 $fieldDefinition = [
-    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 0, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::NUMBER),
-    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('name', 3, 7, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 0, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::Number),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('name', 3, 7, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
     new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
         'enable',
         10,
         1,
-        \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING,
+        \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String,
         null,
         [
             "S" => [
-                new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('first', 11, 1, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
-                new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('second', 12, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
+                new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('first', 11, 1, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
+                new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('second', 12, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
             ],
             "N" => [
-                new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('reason', 11, 4, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
+                new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('reason', 11, 4, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
             ]
         ]
     ),
@@ -220,24 +221,17 @@ $formatter->setPadString(string);  # Default: space character
 $formatter->toText();
 ```
 
-## Install
+## Installation
 
 ```
 composer require "byjg/anydataset-text"
 ```
 
-## Running Unit tests
+## Running Tests
 
 ```bash
 vendor/bin/phpunit
 ```
 
-## Dependencies
-
-```mermaid
-flowchart TD
-    byjg/anydataset-text --> byjg/anydataset
-```
-
 ----
-[Open source ByJG](http://opensource.byjg.com)
+[Open source ByJG](https://opensource.byjg.com)
