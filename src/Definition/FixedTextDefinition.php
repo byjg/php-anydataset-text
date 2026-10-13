@@ -36,7 +36,7 @@ class FixedTextDefinition
      * @param ?array $requiredValue
      * @param array|null $subTypes
      */
-    public function __construct(string $fieldName, int $startPos, int $length, TextTypeEnum $type = TextTypeEnum::STRING, ?array $requiredValue = null, ?array $subTypes = null)
+    public function __construct(string $fieldName, int $startPos, int $length, TextTypeEnum $type = TextTypeEnum::String, ?array $requiredValue = null, ?array $subTypes = null)
     {
         $this->fieldName = $fieldName;
         $this->startPos = $startPos;
@@ -45,7 +45,7 @@ class FixedTextDefinition
         $this->requiredValue = $requiredValue;
         $this->subTypes = $subTypes;
 
-        if ($this->type != TextTypeEnum::NUMBER && $this->type != TextTypeEnum::STRING) {
+        if ($this->type != TextTypeEnum::Number && $this->type != TextTypeEnum::String) {
             throw new InvalidArgumentException("Type must be 'string' or 'number'");
         }
     }

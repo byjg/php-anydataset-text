@@ -85,7 +85,7 @@ class FixedSizeColumnFormatter extends BaseFormatter
                 throw new MalformedException("Field '$definition->fieldName' requires to be one of '" . implode(",", $definition->requiredValue) . "' but I found '$value'");
             }
 
-            if ($definition->type == TextTypeEnum::NUMBER) {
+            if ($definition->type == TextTypeEnum::Number) {
                 $line .= str_pad($value, $definition->length, $this->padNumber, STR_PAD_LEFT);
             } else {
                 $line .= str_pad($value, $definition->length, $this->padString, STR_PAD_RIGHT);
