@@ -54,6 +54,11 @@ $dataset = \ByJG\AnyDataset\Text\TextFileDataset::getInstance($file)
     ->withFieldParser(\ByJG\AnyDataset\Text\TextFileDataset::CSVFILE);
 ```
 
+:::note
+Field names are always converted to lowercase, both those passed to `withFields()` and those read
+from the first line. Use the lowercase name with `$row->get()`.
+:::
+
 ## End of File Character
 
 You can specify a custom end-of-line character if your file uses a non-standard line terminator:

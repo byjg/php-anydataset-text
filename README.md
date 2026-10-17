@@ -111,18 +111,24 @@ $definition = new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
                      #      new FixedTextDefinition(...),
                      #      new FixedTextDefinition(...),
                      #    ],
-                     #    "N" => new FixedTextDefinition(...)
+                     #    "N" => [
+                     #      new FixedTextDefinition(...),
+                     #    ],
                      # ]
 );
 ```
 
 Example:
 
+data.txt
+```text
+001JOAO   S1520
+002GILBERTS1621
+```
+
 ```php
 <?php
-$file = "".
-    "001JOAO   S1520\n".
-    "002GILBERTS1621\n";
+$file = "data.txt";
 
 $fieldDefinition = [
     new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 0, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::Number),
@@ -131,7 +137,7 @@ $fieldDefinition = [
     new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('code', 11, 4, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::Number),
 ];
 
-$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset($file)
+$dataset = \ByJG\AnyDataset\Text\FixedTextFileDataset::getInstance($file)
     ->withFieldDefinition($fieldDefinition);
 
 $iterator = $dataset->getIterator();
@@ -145,11 +151,15 @@ foreach ($iterator as $row) {
 
 ### Text File Fixed sized columns with conditional type of fields
 
+data.txt
+```text
+001JOAO   S1520
+002GILBERTS1621
+```
+
 ```php
 <?php
-$file = "".
-    "001JOAO   S1520\n".
-    "002GILBERTS1621\n";
+$file = "data.txt";
 
 $fieldDefinition = [
     new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 0, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::Number),
@@ -172,7 +182,7 @@ $fieldDefinition = [
     ),
 ];
 
-$dataset = new \ByJG\AnyDataset\Text\FixedTextFileDataset($file)
+$dataset = \ByJG\AnyDataset\Text\FixedTextFileDataset::getInstance($file)
     ->withFieldDefinition($fieldDefinition);
 
 $iterator = $dataset->getIterator();
