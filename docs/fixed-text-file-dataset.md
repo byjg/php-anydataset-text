@@ -85,7 +85,8 @@ new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
 
 ## Remote Files
 
-`FixedTextFileDataset` supports reading files from remote HTTP or HTTPS URLs:
+`FixedTextFileDataset` supports reading files from remote HTTP or HTTPS URLs (opened with PHP's
+http(s) stream wrapper; a URL that cannot be opened throws `DatasetException`):
 
 ```php
 $dataset = \ByJG\AnyDataset\Text\FixedTextFileDataset::getInstance("https://example.com/data.txt")

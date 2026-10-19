@@ -14,6 +14,19 @@ Enum cases follow the ByJG standard and are written in PascalCase. `TextTypeEnum
 |---|---|---|
 | `TextTypeEnum` | `STRING`, `NUMBER` | `String`, `Number` |
 
+### `FixedTextFileDataset::getIteratorHttp()` removed
+
+The protected `getIteratorHttp()` method was removed (see Bug Fixes). Remote URLs now go
+through `getIteratorFile()`; a subclass that overrode `getIteratorHttp()` must override
+`getIteratorFile()` instead. This was renaned to `openStreamIterator()` 
+
+## Bug Fixes
+
+- `FixedTextFileDataset` could not read remote files: it opened a raw socket on port 80
+  (no TLS, so HTTPS never worked), rejected host names with a `-`, and did not strip the
+  HTTP response headers. It now opens URLs with `fopen()` and PHP's http(s) stream wrapper,
+  like `TextFileDataset`. A URL that cannot be opened throws `DatasetException`.
+
 ## Requirements
 
 - PHP 8.3, 8.4, 8.5 and 8.6 are now supported: `"php": ">=8.3 <8.7"`.

@@ -82,59 +82,17 @@ class FixedTextFileDataset
             throw new InvalidArgumentException("Field definition is empty");
         }
 
-        if ($this->sourceType == "HTTP") {
-            return $this->getIteratorHttp();
-        }
-        return $this->getIteratorFile();
+        return $this->openStreamIterator();
     }
 
     /**
      * @return GenericIterator
      * @throws DatasetException
      */
-    protected function getIteratorHttp(): GenericIterator
+    protected function openStreamIterator(): GenericIterator
     {
-        // Expression Regular:
-        // [1]: http or ftp
-        // [2]: Server name
-        // [3]: Full Path
-        $pat = "/(http|ftp|https):\/\/([\w+|\.]+)/i";
-        $urlParts = preg_split($pat, $this->source, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-        if ($urlParts === false || !isset($urlParts[2], $urlParts[4])) {
-            throw new DatasetException("Invalid URL format");
-        }
-
-        $handle = fsockopen($urlParts[2], 80, $errno, $errstr, 30);
-        if (!$handle) {
-            throw new DatasetException("TextFileDataset Socket error: $errstr ($errno)");
-        }
-
-        $out = "GET " . $urlParts[4] . " HTTP/1.1\r\n";
-        $out .= "Host: " . $urlParts[2] . "\r\n";
-        $out .= "Connection: Close\r\n\r\n";
-
-        try {
-            fwrite($handle, $out);
-        } catch (Exception $ex) {
-            fclose($handle);
-            throw new DatasetException($ex->getMessage());
-        }
-
-        if ($this->fieldDefinition === null) {
-            throw new InvalidArgumentException("Field definition is empty");
-        }
-
-        return new FixedTextFileIterator($handle, $this->fieldDefinition);
-    }
-
-    /**
-     * @return GenericIterator
-     * @throws DatasetException
-     */
-    protected function getIteratorFile(): GenericIterator
-    {
-        $handle = fopen($this->source, "r");
+        // Local files and http(s) URLs are both read through PHP's stream wrappers
+        $handle = @fopen($this->source, "r");
         if (!$handle) {
             throw new DatasetException("TextFileDataset File open error");
         }

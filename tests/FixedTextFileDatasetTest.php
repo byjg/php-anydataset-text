@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use ByJG\AnyDataset\Core\Exception\DatasetException;
 use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\Row;
 use ByJG\AnyDataset\Text\Definition\FixedTextDefinition;
@@ -307,5 +308,25 @@ class FixedTextFileDatasetTest extends TestCase
         ]);
         $formatter = new FixedSizeColumnFormatter($row, $fieldDefinition);
         $this->assertEquals("001Joao   S1520\n", $formatter->toText());
+    }
+
+    public function testGetIteratorRemoteHttps()
+    {
+        $repository = FixedTextFileDataset::getInstance('https://opensource-test-resources.web.app/textfiletest-unix.csv')
+            ->withFieldDefinition([
+                new FixedTextDefinition('id', 0, 1, TextTypeEnum::Number),
+                new FixedTextDefinition('name', 2, 7),
+            ]);
+
+        $this->assertSame(['id' => 1, 'name' => 'STRING1'], $repository->getIterator()->first());
+    }
+
+    public function testGetIteratorRemoteNotFound()
+    {
+        $this->expectException(DatasetException::class);
+
+        FixedTextFileDataset::getInstance('https://opensource-test-resources.web.app/notfound-test')
+            ->withFieldDefinition([new FixedTextDefinition('id', 0, 1)])
+            ->getIterator();
     }
 }
