@@ -13,10 +13,10 @@ The `FixedTextFileDataset` class provides functionality to work with fixed-width
 $file = "data.txt";
 
 $fieldDefinition = [
-    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 0, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::NUMBER),
-    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('name', 3, 7, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
-    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('enable', 10, 1, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
-    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('code', 11, 4, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::NUMBER),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 0, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::Number),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('name', 3, 7, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('enable', 10, 1, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
+    new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('code', 11, 4, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::Number),
 ];
 
 $dataset = \ByJG\AnyDataset\Text\FixedTextFileDataset::getInstance($file)
@@ -40,7 +40,7 @@ $definition = new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
     $fieldName,      // The field name
     $startPos,       // The start position of this field in the row (0-based)
     $length,         // The number of characters of the field content
-    $type,           // (optional) The type of the field content: TextTypeEnum::STRING (default) or TextTypeEnum::NUMBER
+    $type,           // (optional) The type of the field content: TextTypeEnum::String (default) or TextTypeEnum::Number
     $requiredValue,  // (optional) An array of valid values. E.g. ['Y', 'N']
     $subTypes        // (optional) An associative array of FixedTextDefinition for conditional field parsing
 );
@@ -55,7 +55,7 @@ new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
     'enable', 
     10, 
     1, 
-    \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING, 
+    \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String, 
     ['S', 'N']  // Required values --> S or N
 )
 ```
@@ -69,15 +69,15 @@ new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
     'enable',
     10,
     1,
-    \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING,
+    \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String,
     null,
     [
         "S" => [
-            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('first', 11, 1, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
-            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('second', 12, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
+            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('first', 11, 1, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
+            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('second', 12, 3, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
         ],
         "N" => [
-            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('reason', 11, 4, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
+            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('reason', 11, 4, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
         ]
     ]
 )
@@ -85,7 +85,8 @@ new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
 
 ## Remote Files
 
-`FixedTextFileDataset` supports reading files from remote HTTP or HTTPS URLs:
+`FixedTextFileDataset` supports reading files from remote HTTP or HTTPS URLs (opened with PHP's
+http(s) stream wrapper; a URL that cannot be opened throws `DatasetException`):
 
 ```php
 $dataset = \ByJG\AnyDataset\Text\FixedTextFileDataset::getInstance("https://example.com/data.txt")

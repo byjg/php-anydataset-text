@@ -14,7 +14,7 @@ $definition = new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
     'fieldName',  // The field name
     0,            // The start position (0-based)
     10,           // The length of the field
-    \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING  // The field type
+    \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String  // The field type
 );
 ```
 
@@ -27,7 +27,7 @@ $definition = new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
     $fieldName,      // The field name (string)
     $startPos,       // The start position of this field in the row (int, 0-based)
     $length,         // The number of characters of the field content (int)
-    $type,           // (optional) The type of the field content: TextTypeEnum::STRING (default) or TextTypeEnum::NUMBER
+    $type,           // (optional) The type of the field content: TextTypeEnum::String (default) or TextTypeEnum::Number
     $requiredValue,  // (optional) An array of valid values. E.g. ['Y', 'N']
     $subTypes        // (optional) An associative array of FixedTextDefinition for conditional field parsing
 );
@@ -37,8 +37,8 @@ $definition = new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
 
 The `TextTypeEnum` class defines the available field types:
 
-- `TextTypeEnum::STRING` - String type (default)
-- `TextTypeEnum::NUMBER` - Numeric type
+- `TextTypeEnum::String` - String type (default)
+- `TextTypeEnum::Number` - Numeric type
 
 ## Required Values
 
@@ -49,7 +49,7 @@ $definition = new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
     'status',
     10,
     1,
-    \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING,
+    \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String,
     ['A', 'I', 'P']  // Only 'A', 'I', or 'P' are valid values
 );
 ```
@@ -63,16 +63,16 @@ $definition = new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition(
     'recordType',
     0,
     1,
-    \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING,
+    \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String,
     null,
     [
         "H" => [  // If recordType is "H" (Header), use these field definitions
-            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('date', 1, 8, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
-            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('batch', 9, 5, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::NUMBER),
+            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('date', 1, 8, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
+            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('batch', 9, 5, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::Number),
         ],
         "D" => [  // If recordType is "D" (Detail), use these field definitions
-            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 1, 5, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::NUMBER),
-            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('name', 6, 20, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::STRING),
+            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('id', 1, 5, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::Number),
+            new \ByJG\AnyDataset\Text\Definition\FixedTextDefinition('name', 6, 20, \ByJG\AnyDataset\Text\Definition\TextTypeEnum::String),
         ]
     ]
 );

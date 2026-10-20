@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use ByJG\AnyDataset\Core\Exception\DatasetException;
 use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\Row;
 use ByJG\AnyDataset\Text\Definition\FixedTextDefinition;
@@ -23,10 +24,10 @@ class FixedTextFileDatasetTest extends TestCase
     public function testGetIterator()
     {
         $fieldDefinition = [
-            new FixedTextDefinition('id', 0, 3, TextTypeEnum::NUMBER),
+            new FixedTextDefinition('id', 0, 3, TextTypeEnum::Number),
             new FixedTextDefinition('name', 3, 7),
-            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['S', 'N']),
-            new FixedTextDefinition('code', 11, 4, TextTypeEnum::NUMBER),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::String, ['S', 'N']),
+            new FixedTextDefinition('code', 11, 4, TextTypeEnum::Number),
         ];
 
         $repository = FixedTextFileDataset::getInstance(__DIR__ . '/sample-fixed.txt')
@@ -60,7 +61,7 @@ class FixedTextFileDatasetTest extends TestCase
         $fieldDefinition = [
             new FixedTextDefinition('id', 0, 3),
             new FixedTextDefinition('name', 3, 7),
-            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['Y', 'N']),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::String, ['Y', 'N']),
             new FixedTextDefinition('code', 11, 4),
         ];
 
@@ -76,18 +77,18 @@ class FixedTextFileDatasetTest extends TestCase
     public function testGetIterator_SubTypes()
     {
         $fieldDefinition = [
-            new FixedTextDefinition('id', 0, 3, TextTypeEnum::NUMBER),
+            new FixedTextDefinition('id', 0, 3, TextTypeEnum::Number),
             new FixedTextDefinition('name', 3, 7),
             new FixedTextDefinition(
                 'enable',
                 10,
                 1,
-                TextTypeEnum::STRING,
+                TextTypeEnum::String,
                 null,
                 [
                     "S" => [
-                        new FixedTextDefinition('first', 11, 1, TextTypeEnum::NUMBER),
-                        new FixedTextDefinition('second', 12, 3, TextTypeEnum::NUMBER),
+                        new FixedTextDefinition('first', 11, 1, TextTypeEnum::Number),
+                        new FixedTextDefinition('second', 12, 3, TextTypeEnum::Number),
                     ],
                     "N" => [
                         new FixedTextDefinition('reason', 11, 4),
@@ -132,7 +133,7 @@ class FixedTextFileDatasetTest extends TestCase
                 'enable',
                 10,
                 1,
-                TextTypeEnum::STRING,
+                TextTypeEnum::String,
                 null,
                 [
                     "Y" => [
@@ -167,7 +168,7 @@ class FixedTextFileDatasetTest extends TestCase
                 'enable',
                 10,
                 1,
-                TextTypeEnum::STRING,
+                TextTypeEnum::String,
                 null,
                 [
                     "S" => [
@@ -188,8 +189,8 @@ class FixedTextFileDatasetTest extends TestCase
     {
         $fieldDefinition = [
             new FixedTextDefinition('name', 3, 7),
-            new FixedTextDefinition('id', 0, 3, TextTypeEnum::NUMBER),
-            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['S', 'N']),
+            new FixedTextDefinition('id', 0, 3, TextTypeEnum::Number),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::String, ['S', 'N']),
             new FixedTextDefinition('code', 11, 4),
         ];
 
@@ -211,7 +212,7 @@ class FixedTextFileDatasetTest extends TestCase
         $fieldDefinition = [
             new FixedTextDefinition('name', 3, 7),
             new FixedTextDefinition('id', 0, 3),
-            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['S', 'N']),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::String, ['S', 'N']),
             new FixedTextDefinition('code', 11, 4),
         ];
 
@@ -233,7 +234,7 @@ class FixedTextFileDatasetTest extends TestCase
         $fieldDefinition = [
             new FixedTextDefinition('name', 3, 7),
             new FixedTextDefinition('id', 0, 3),
-            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['S', 'N']),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::String, ['S', 'N']),
             new FixedTextDefinition('code', 11, 4),
         ];
 
@@ -255,7 +256,7 @@ class FixedTextFileDatasetTest extends TestCase
         $fieldDefinition = [
             new FixedTextDefinition('name', 3, 7),
             new FixedTextDefinition('id', 0, 3),
-            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::STRING, ['S', 'N']),
+            new FixedTextDefinition('enable', 10, 1, TextTypeEnum::String, ['S', 'N']),
             new FixedTextDefinition('code', 11, 4),
         ];
 
@@ -271,13 +272,13 @@ class FixedTextFileDatasetTest extends TestCase
     public function testRowFormatter_2()
     {
         $fieldDefinition = [
-            new FixedTextDefinition('id', 0, 3, TextTypeEnum::NUMBER),
+            new FixedTextDefinition('id', 0, 3, TextTypeEnum::Number),
             new FixedTextDefinition('name', 3, 7),
             new FixedTextDefinition(
                 'enable',
                 10,
                 1,
-                TextTypeEnum::STRING,
+                TextTypeEnum::String,
                 null,
                 [
                     "S" => [
@@ -307,5 +308,25 @@ class FixedTextFileDatasetTest extends TestCase
         ]);
         $formatter = new FixedSizeColumnFormatter($row, $fieldDefinition);
         $this->assertEquals("001Joao   S1520\n", $formatter->toText());
+    }
+
+    public function testGetIteratorRemoteHttps()
+    {
+        $repository = FixedTextFileDataset::getInstance('https://opensource-test-resources.web.app/textfiletest-unix.csv')
+            ->withFieldDefinition([
+                new FixedTextDefinition('id', 0, 1, TextTypeEnum::Number),
+                new FixedTextDefinition('name', 2, 7),
+            ]);
+
+        $this->assertSame(['id' => 1, 'name' => 'STRING1'], $repository->getIterator()->first());
+    }
+
+    public function testGetIteratorRemoteNotFound()
+    {
+        $this->expectException(DatasetException::class);
+
+        FixedTextFileDataset::getInstance('https://opensource-test-resources.web.app/notfound-test')
+            ->withFieldDefinition([new FixedTextDefinition('id', 0, 1)])
+            ->getIterator();
     }
 }

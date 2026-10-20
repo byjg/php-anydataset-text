@@ -4,6 +4,6 @@ namespace ByJG\AnyDataset\Text\Definition;
 
 enum TextTypeEnum
 {
-    case STRING;
-    case NUMBER;
+    case String;
+    case Number;
 }
