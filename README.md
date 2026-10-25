@@ -5,7 +5,7 @@ tags: [php, anydataset, text-manipulation]
 
 # Text File Abstraction Dataset
 
-Text file abstraction dataset. Anydataset is an agnostic data source abstraction layer in PHP.
+Read delimited (CSV) and fixed-width text files as rows, from disk or from a URL.
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-%23ea4aaa?logo=githubsponsors&logoColor=white&labelColor=0d1117)](https://github.com/sponsors/byjg)
 [![Build Status](https://github.com/byjg/php-anydataset-text/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/php-anydataset-text/actions/workflows/phpunit.yml)
@@ -16,6 +16,27 @@ Text file abstraction dataset. Anydataset is an agnostic data source abstraction
 [![GitHub release](https://img.shields.io/github/release/byjg/php-anydataset-text.svg)](https://github.com/byjg/php-anydataset-text/releases/)
 
 See more about Anydataset [here](https://opensource.byjg.com/anydataset).
+
+## Why
+
+CSV is the easy case. The hard one is the fixed-width file still exchanged by banks,
+governments and legacy systems, often with a header, detail and trailer record in the
+same file, each with a different layout.
+
+TextFileDataset reads delimited files with any separator. FixedTextFileDataset reads
+fixed-width files from field definitions, including **conditional layouts**: the value of
+one field (the record type) chooses how the rest of the line is parsed.
+
+```php
+new FixedTextDefinition('recordType', 0, 1, TextTypeEnum::String, null, [
+    'H' => [ /* header fields */ ],
+    'D' => [ /* detail fields */ ],
+]);
+```
+
+Both give the same iterator of rows as every other
+[AnyDataset](https://opensource.byjg.com/anydataset) source, and can write the rows back as
+CSV or fixed-width.
 
 ## Features
 
