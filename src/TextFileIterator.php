@@ -4,7 +4,7 @@ namespace ByJG\AnyDataset\Text;
 
 use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Core\RowArray;
-use ReturnTypeWillChange;
+use Generator;
 
 class TextFileIterator extends GenericIterator
 {
@@ -18,14 +18,8 @@ class TextFileIterator extends GenericIterator
     /** @var string */
     protected string $eofChar;
 
-    /** @var resource|closed-resource|null */
+    /** @var resource|closed-resource */
     protected $handle;
-
-    /** @var array */
-    protected array $current;
-
-    /** @var bool|string */
-    protected string|bool $currentBuffer = "";
 
     /**
      * @access public
@@ -40,127 +34,77 @@ class TextFileIterator extends GenericIterator
         $this->fieldexpression = $fieldExpression;
         $this->eofChar = $eofChar;
         $this->handle = $handle;
+    }
 
-        $this->current = [
-            'row' => null,
-            'i' => 0,
-        ];
-
-        $this->readNextLine();
+    #[\Override]
+    protected function rows(): Generator
+    {
+        return self::walk($this->handle, $this->fields, $this->fieldexpression, $this->eofChar);
     }
 
     /**
-     * @return RowArray|null
+     * The rows of the file; the file is closed when they end or the iterator is destroyed
+     *
+     * @param resource|closed-resource $handle
+     * @param non-empty-string $fieldExpression
      */
-    protected function readNextLine(): ?RowArray
+    private static function walk($handle, array $fields, string $fieldExpression, string $eofChar): Generator
     {
-        if (!$this->valid()) {
-            return null;
+        if (!is_resource($handle)) {
+            return;
         }
-
-        if (!is_resource($this->handle)) {
-            return null;
+        try {
+            while (($buffer = self::readLine($handle, $eofChar)) !== false) {
+                if (trim($buffer) !== "") {
+                    yield self::parseLine($buffer, $fields, $fieldExpression);
+                }
+            }
+        } finally {
+            fclose($handle);
         }
-
-        if (empty($this->eofChar)) {
-            $buffer = fgets($this->handle, 8192);
-        } else {
-            $buffer = stream_get_line($this->handle, 8192, $this->eofChar);
-        }
-
-        $this->currentBuffer = false;
-
-        if (($buffer !== false) && (trim($buffer) != "")) {
-            $this->currentBuffer = $buffer;
-        } else {
-            $this->readNextLine();
-        }
-
-        $row = $this->parseLine();
-
-        $this->current["row"] = $row;
-
-        return $row;
-
     }
 
     /**
-     * @return RowArray|null
+     * @param resource $handle
      */
-    public function parseLine(): ?RowArray
+    protected static function readLine($handle, string $eofChar): string|false
     {
-        if ($this->currentBuffer === false || !is_string($this->currentBuffer)) {
-            return new RowArray();
+        if (empty($eofChar)) {
+            return fgets($handle, 8192);
         }
+        return stream_get_line($handle, 8192, $eofChar);
+    }
 
-        $cleaned = preg_replace("/(\r?\n?)$/", "", $this->currentBuffer);
+    /**
+     * @param non-empty-string $fieldExpression
+     */
+    protected static function parseLine(string $buffer, array $fields, string $fieldExpression): RowArray
+    {
+        $cleaned = preg_replace("/(\r?\n?)$/", "", $buffer);
         if ($cleaned === null) {
             return new RowArray();
         }
 
-        $cols = preg_split($this->fieldexpression, $cleaned, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $cols = preg_split($fieldExpression, $cleaned, -1, PREG_SPLIT_DELIM_CAPTURE);
         if ($cols === false) {
             return new RowArray();
         }
 
         $row = new RowArray();
 
-        for ($i = 0; ($i < count($this->fields)) && ($i < count($cols)); $i++) {
+        for ($i = 0; ($i < count($fields)) && ($i < count($cols)); $i++) {
             $column = $cols[$i];
 
-            if (($i >= count($this->fields) - 1) || ($i >= count($cols) - 1)) {
+            if (($i >= count($fields) - 1) || ($i >= count($cols) - 1)) {
                 $cleaned = preg_replace("/(\r?\n?)$/", "", $column);
                 $column = $cleaned ?? $column;
             }
             $cleaned = preg_replace("/^[\"'](.*)[\"']$/", "$1", $column);
             $column = $cleaned ?? $column;
 
-            $row->set($this->fields[$i], $column);
+            $row->set($fields[$i], $column);
         }
 
         return $row;
-    }
-
-    #[\Override]
-    public function key(): int
-    {
-        return $this->current["i"];
-    }
-
-    #[\Override]
-    #[ReturnTypeWillChange]
-    public function current(): mixed
-    {
-        return $this->current["row"];
-    }
-
-    #[\Override]
-    #[ReturnTypeWillChange]
-    public function next(): void
-    {
-        $this->current["i"]++;
-        $this->current["row"] = null;
-        $this->readNextLine();
-    }
-
-    #[\Override]
-    #[ReturnTypeWillChange]
-    public function valid(): bool
-    {
-        if ($this->currentBuffer !== false) {
-            return true;
-        }
-
-        if (!$this->handle || !is_resource($this->handle)) {
-            return false;
-        }
-
-        if (feof($this->handle)) {
-            fclose($this->handle);
-            $this->handle = null;
-            return false;
-        }
-
-        return true;
     }
 }

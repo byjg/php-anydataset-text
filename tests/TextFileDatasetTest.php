@@ -93,6 +93,21 @@ class TextFileDatasetTest extends TestCase
         $this->assertRowCount($txtIterator, 2000);
     }
 
+    public function testFileIsClosedWhenAPartlyReadIteratorIsDestroyed()
+    {
+        $txtFile = TextFileDataset::getInstance(self::$fileName_Unix)
+            ->withFields(self::$fieldNames)
+            ->withFieldParser(TextFileDataset::CSVFILE);
+        $streams = count(get_resources('stream'));
+
+        $txtIterator = $txtFile->getIterator();
+        $this->assertNotNull($txtIterator->first());
+        $this->assertCount($streams + 1, get_resources('stream'));
+
+        unset($txtIterator);
+        $this->assertCount($streams, get_resources('stream'));
+    }
+
     public function testFirstline_Header_noDef()
     {
         $txtFile = TextFileDataset::getInstance(self::$firstline_Header)

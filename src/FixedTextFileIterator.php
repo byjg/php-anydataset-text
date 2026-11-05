@@ -5,10 +5,9 @@ namespace ByJG\AnyDataset\Text;
 use ByJG\AnyDataset\Core\Exception\IteratorException;
 use ByJG\AnyDataset\Core\GenericIterator;
 use ByJG\AnyDataset\Core\RowArray;
-use ByJG\AnyDataset\Core\RowInterface;
 use ByJG\AnyDataset\Text\Definition\FixedTextDefinition;
 use ByJG\AnyDataset\Text\Definition\TextTypeEnum;
-use ReturnTypeWillChange;
+use Generator;
 
 class FixedTextFileIterator extends GenericIterator
 {
@@ -20,14 +19,9 @@ class FixedTextFileIterator extends GenericIterator
     protected array $fields;
 
     /**
-     * @var resource|closed-resource|null
+     * @var resource|closed-resource
      */
     protected $handle;
-
-    /**
-     * @var array
-     */
-    private array $current;
 
     /**
      *
@@ -38,36 +32,32 @@ class FixedTextFileIterator extends GenericIterator
     {
         $this->fields = $fieldDefinition;
         $this->handle = $handle;
-        $this->current = [
-            'row' => null,
-            'i' => 0,
-        ];
-
-        $this->readNextLine();
     }
 
-    protected function readNextLine(): ?RowInterface
+    #[\Override]
+    protected function rows(): Generator
     {
-        if (!$this->valid()) {
-            return null;
+        return self::walk($this->handle, $this->fields);
+    }
+
+    /**
+     * The rows of the file; the file is closed when they end or the iterator is destroyed
+     *
+     * @param resource|closed-resource $handle
+     * @param FixedTextDefinition[] $fieldDefinition
+     */
+    private static function walk($handle, array $fieldDefinition): Generator
+    {
+        if (!is_resource($handle)) {
+            return;
         }
-
-        if (!is_resource($this->handle)) {
-            return null;
+        try {
+            while (($buffer = fgets($handle, 8192)) !== false) {
+                yield new RowArray(self::processBuffer($buffer, $fieldDefinition));
+            }
+        } finally {
+            fclose($handle);
         }
-
-        $buffer = fgets($this->handle, 8192);
-
-        if (!empty($buffer)) {
-            $retFields = $this->processBuffer($buffer, $this->fields);
-            $row = new RowArray($retFields);
-        } else {
-            $row = new RowArray();
-        }
-
-        $this->current["row"] = $row;
-
-        return $row;
     }
 
     /**
@@ -76,7 +66,7 @@ class FixedTextFileIterator extends GenericIterator
      * @return array
      * @throws IteratorException
      */
-    protected function processBuffer(string $buffer, array $fieldDefinition): array
+    protected static function processBuffer(string $buffer, array $fieldDefinition): array
     {
         $cntDef = count($fieldDefinition);
         $fieldList = [];
@@ -117,56 +107,11 @@ class FixedTextFileIterator extends GenericIterator
 
                 $fieldList = array_merge(
                     $fieldList,
-                    $this->processBuffer($buffer, $value)
+                    self::processBuffer($buffer, $value)
                 );
             }
         }
 
         return $fieldList;
-    }
-
-    #[\Override]
-    public function key(): int
-    {
-        return $this->current["i"];
-    }
-
-    #[\Override]
-    #[ReturnTypeWillChange]
-    public function current(): ?RowInterface
-    {
-        return $this->current["row"];
-    }
-
-    #[\Override]
-    #[ReturnTypeWillChange]
-    public function next(): void
-    {
-        $this->current["i"]++;
-        $this->current["row"] = null;
-        $this->readNextLine();
-    }
-
-    #[\Override]
-    #[ReturnTypeWillChange]
-    public function valid(): bool
-    {
-        if (!$this->handle || !is_resource($this->handle)) {
-            return false;
-        }
-
-        // If there is a current row
-        if (isset($this->current["row"]) && ($this->current["row"] !== null)) {
-            return true;
-        }
-
-        // If reading next line is possible
-        if (feof($this->handle)) {
-            fclose($this->handle);
-            $this->handle = null;
-            return false;
-        }
-
-        return true;
     }
 }
