@@ -5,6 +5,7 @@ namespace ByJG\AnyDataset\Text;
 use ByJG\AnyDataset\Core\Exception\DatasetException;
 use ByJG\AnyDataset\Core\Exception\NotFoundException;
 use ByJG\AnyDataset\Core\GenericIterator;
+use ByJG\Serializer\Reader\CsvReader;
 use Exception;
 
 class TextFileDataset
@@ -28,6 +29,12 @@ class TextFileDataset
 
     /** @var string */
     protected string $eofChar = "";
+
+    /** @var string|null The separator of the CSV records (withSeparator()); null splits the lines by the field parser */
+    protected ?string $separator = null;
+
+    /** @var string */
+    protected string $enclosure = '"';
 
     /**
      * Text File Data Set
@@ -71,6 +78,23 @@ class TextFileDataset
     public function withFieldParser(string $regexParser): static
     {
         $this->fieldexpression = $regexParser;
+        $this->separator = null;
+        return $this;
+    }
+
+    /**
+     * Reads the file as CSV records (RFC 4180) instead of splitting each line by the field parser: a value in the
+     * enclosure may contain the separator, line breaks and the enclosure doubled. The lines end in LF or CRLF;
+     * withEofChar() is not supported.
+     *
+     * @param string $separator The character between the fields (one byte)
+     * @param string $enclosure The character that quotes a field (one byte)
+     * @return static
+     */
+    public function withSeparator(string $separator, string $enclosure = '"'): static
+    {
+        $this->separator = $separator;
+        $this->enclosure = $enclosure;
         return $this;
     }
 
@@ -101,12 +125,24 @@ class TextFileDataset
      */
     public function getIterator(): GenericIterator
     {
+        if ($this->separator !== null && $this->eofChar !== "") {
+            throw new DatasetException("withEofChar() is not supported with withSeparator(): the CSV lines end in LF or CRLF");
+        }
+
         $handle = @fopen($this->source, "r");
         if (!$handle) {
             throw new DatasetException("TextFileDataset failed to open resource");
         }
 
         try {
+            if ($this->separator !== null) {
+                if (empty($this->fields)) {
+                    $header = CsvReader::records($handle, false, $this->separator, $this->enclosure)->current() ?? [];
+                    $this->fields = array_map('strtolower', $header);
+                }
+                return new CsvFileIterator($handle, $this->fields, $this->separator, $this->enclosure);
+            }
+
             if (empty($this->fields)) {
                 $this->fields = $this->getFieldDefinitionFromFile($handle);
             }

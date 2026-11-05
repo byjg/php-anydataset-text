@@ -310,6 +310,23 @@ class FixedTextFileDatasetTest extends TestCase
         $this->assertEquals("001Joao   S1520\n", $formatter->toText());
     }
 
+    public function testFileIsClosedWhenAPartlyReadIteratorIsDestroyed()
+    {
+        $repository = FixedTextFileDataset::getInstance(__DIR__ . '/sample-fixed.txt')
+            ->withFieldDefinition([
+                new FixedTextDefinition('id', 0, 3, TextTypeEnum::Number),
+                new FixedTextDefinition('name', 3, 7),
+            ]);
+        $streams = count(get_resources('stream'));
+
+        $iterator = $repository->getIterator();
+        $this->assertSame(['id' => 1, 'name' => 'JOAO'], $iterator->first());
+        $this->assertCount($streams + 1, get_resources('stream'));
+
+        unset($iterator);
+        $this->assertCount($streams, get_resources('stream'));
+    }
+
     public function testGetIteratorRemoteHttps()
     {
         $repository = FixedTextFileDataset::getInstance('https://opensource-test-resources.web.app/textfiletest-unix.csv')
