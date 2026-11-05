@@ -20,6 +20,49 @@ The protected `getIteratorHttp()` method was removed (see Bug Fixes). Remote URL
 through `getIteratorFile()`; a subclass that overrode `getIteratorHttp()` must override
 `getIteratorFile()` instead. This was renaned to `openStreamIterator()` 
 
+### The iterators are generator based
+
+`TextFileIterator` and `FixedTextFileIterator` follow byjg/anydataset 7.0 `GenericIterator`
+(`IteratorAggregate`, forward only, a static `rows()`; see its changelog). The file is closed when the
+rows end **or as soon as the iterator is dropped** (`first()`, a `foreach` with `break`).
+
+- `TextFileIterator::parseLine()` is now `protected static parseLine(string $buffer, array $fields,
+  string $fieldExpression)` (it was public and read the current line of the iterator), and `readLine()` is
+  `protected static readLine($handle, string $eofChar)`.
+- `FixedTextFileIterator::processBuffer()` is now `protected static`.
+- `FixedTextFileIterator`: an error of a field definition (a required value, a subtype) is thrown while the
+  rows are read, not by `getIterator()` (the first line is no longer read in the constructor).
+
+## New Features
+
+### CSV files: `TextFileDataset::withSeparator()`
+
+`withSeparator($separator, $enclosure = '"')` reads the file as CSV records (RFC 4180) with byjg/serializer
+`CsvReader`: a value in the enclosure may contain the separator, line breaks and the enclosure doubled
+(`""`), which the field parser modes cannot read.
+
+```php
+// users.csv:  id,name,note
+//             1,"Doe, John","He said ""hi"""
+$dataset = TextFileDataset::getInstance('users.csv')->withSeparator(',');
+// ['id' => '1', 'name' => 'Doe, John', 'note' => 'He said "hi"']
+
+$dataset = TextFileDataset::getInstance('users.csv')->withSeparator(';', "'");
+```
+
+- Header names are lower-cased, and a record with fewer or more values than the fields is filled as far
+  as it goes, as in the field parser modes.
+- `withSeparator()` and `withFieldParser()` replace each other: the last one called is used.
+- The lines end in LF or CRLF: `withEofChar()` with `withSeparator()` throws `DatasetException`.
+- The field parser modes (`CSVFILE`, `CSVFILE_COMMA`, `CSVFILE_SEMICOLON`, `withEofChar()`) are unchanged.
+
+**Documentation:** [TextFileDataset](docs/text-file-dataset.md)
+
+## Performance
+
+- Reading a text file is about 1.3x faster (200,000 lines with the field parser: ~441 ms -> ~344 ms;
+  PHP 8.5, Xdebug off).
+
 ## Bug Fixes
 
 - `FixedTextFileDataset` could not read remote files: it opened a raw socket on port 80
@@ -35,6 +78,7 @@ through `getIteratorFile()`; a subclass that overrode `getIteratorHttp()` must o
 ### ByJG dependencies
 
 - `byjg/anydataset` is now `^7.0`.
+- `byjg/serializer` `^7.0` is now required directly (it came only through `byjg/anydataset`).
 
 While 7.0 is unreleased these resolve to `7.0.x-dev` from each component's
 `7.0` branch, via `minimum-stability: dev` with `prefer-stable: true`.
